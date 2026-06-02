@@ -1,0 +1,52 @@
+# Roadmap — Grupo Educacional Meta · Matrícula + Contrato
+
+> Documento vivo. Fluxo de trabalho **por fases** com **aprovação explícita** entre cada fase.
+> Princípio inegociável: **Mobile First**. Tudo nasce no celular e depois ganha o desktop.
+> Meta de qualidade: Lighthouse Mobile **95+**, sem quebra de 320px → 1440px.
+
+## Status das fases
+
+| Fase | Descrição | Status |
+|------|-----------|--------|
+| **0** | Fundação (scaffold + docs + design system + schema) | ✅ Concluída |
+| **1** | Landing + Formulário multietapas (mobile-first) | ⏳ Aguardando aprovação |
+| **2** | Contrato + Assinatura digital | ⬜ Planejada |
+| **3** | Finalização (PDF + e-mail + nº de matrícula) | ⬜ Planejada |
+| **4** | Painel administrativo | ⬜ Planejada |
+| **5** | Editor de contratos (versionamento) | ⬜ Planejada |
+| **6** | Polimento & qualidade (Lighthouse, seed, testes) | ⬜ Planejada |
+
+## Detalhe das fases
+
+### Fase 0 — Fundação ⚙️ (concluída)
+- Scaffold Vite + React 18 + TS + shadcn/ui + Tailwind, espelhando o ecossistema do `meta-ead-showcase`.
+- `docs/`: ROADMAP, SPEC, ARQUITETURA, DESIGN, DB-SCHEMA.
+- Design system premium (cores da spec, tema claro/escuro estilo Vercel, Inter, glassmorphism, micro-animações).
+- Migration inicial do schema Supabase + RLS + buckets + dados de exemplo.
+- Página inicial (hero) provando o design system.
+
+### Fase 1 — Landing + Formulário multietapas 📱
+Hero completo + wizard de 5 etapas (Dados pessoais → Contato → Endereço c/ CEP automático →
+Curso → Documentos com drag&drop + preview). Barra de progresso fixa, máscaras, teclado adequado
+por campo, **autosave** (localStorage), validação Zod + react-hook-form, animações.
+
+### Fase 2 — Contrato + Assinatura digital ✍️
+Visualização estilo DocuSign + sidebar de status. **Versionamento**: cada matrícula amarra à versão
+assinada. Assinatura por desenho (canvas), digitação ou upload, botão "Assinar em tela cheia",
+checkbox de aceite obrigatório.
+
+### Fase 3 — Finalização (PDF + e-mail) 📄
+Edge Function gera PDF (pdf-lib) com dados, contrato, assinatura, data/hora, **IP**, código único,
+versão. Anexa documentos, envia e-mail (aluno + admin), tela de sucesso + "Baixar comprovante".
+
+### Fase 4 — Painel administrativo 📊
+Auth Supabase + perfis (Administrador / Secretária / Financeiro). Dashboard (cards, gráficos,
+últimas matrículas), módulo Matrículas (cards responsivos + painel lateral, Aprovar/Rejeitar/Baixar PDF),
+Alunos, Cursos.
+
+### Fase 5 — Editor de contratos 📝
+Editor visual tipo Google Docs (negrito, itálico, títulos, listas, tabelas, cláusulas) com CRUD +
+versionamento + autosave.
+
+### Fase 6 — Polimento & qualidade ✨
+Lighthouse 95+, responsividade testada (320/375/390/414/768/1024/1440), seed de dados, testes.

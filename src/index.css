@@ -1,0 +1,201 @@
+/* =========================================================================
+   Design System — Grupo Educacional Meta · Matrícula + Contrato
+   Premium SaaS (refs: Stripe / Linear / Vercel). Mobile-first.
+   Cores base: Primária #1E40AF · Secundária #2563EB
+   ========================================================================= */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Fundo #F8FAFC */
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    /* Primária #1E40AF */
+    --primary: 226 71% 40%;
+    --primary-foreground: 0 0% 100%;
+
+    /* Secundária #2563EB */
+    --secondary: 221 83% 53%;
+    --secondary-foreground: 0 0% 100%;
+
+    --muted: 210 40% 96%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 221 83% 53%;
+    --accent-foreground: 0 0% 100%;
+
+    /* Erro #EF4444 */
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    /* Sucesso #22C55E */
+    --success: 142 71% 45%;
+    --success-foreground: 0 0% 100%;
+
+    /* Alerta #F59E0B */
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 221 83% 53%;
+
+    --radius: 0.75rem;
+
+    /* Tokens de marca */
+    --meta-navy: 226 71% 33%;
+    --meta-blue: 221 83% 53%;
+    --meta-sky: 205 90% 56%;
+
+    /* Gradientes */
+    --gradient-hero: linear-gradient(135deg, hsl(226 71% 33%) 0%, hsl(221 83% 48%) 100%);
+    --gradient-button: linear-gradient(135deg, hsl(226 71% 42%) 0%, hsl(221 83% 56%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(221 83% 53%) 0%, hsl(205 90% 56%) 100%);
+
+    /* Sombras */
+    --shadow-sm: 0 1px 2px 0 hsl(222 47% 11% / 0.05);
+    --shadow-md: 0 4px 6px -1px hsl(222 47% 11% / 0.08), 0 2px 4px -2px hsl(222 47% 11% / 0.08);
+    --shadow-lg: 0 10px 15px -3px hsl(222 47% 11% / 0.08), 0 4px 6px -4px hsl(222 47% 11% / 0.08);
+    --shadow-xl: 0 20px 25px -5px hsl(222 47% 11% / 0.1), 0 8px 10px -6px hsl(222 47% 11% / 0.1);
+    --shadow-card: 0 4px 24px -6px hsl(221 83% 53% / 0.16);
+    --shadow-glow: 0 0 48px -12px hsl(221 83% 53% / 0.45);
+
+    /* Sidebar (painel admin) */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 222 30% 30%;
+    --sidebar-primary: 226 71% 40%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 40% 96%;
+    --sidebar-accent-foreground: 226 71% 40%;
+    --sidebar-border: 214 32% 91%;
+    --sidebar-ring: 221 83% 53%;
+  }
+
+  .dark {
+    /* Escuro estilo Vercel Dashboard */
+    --background: 222 47% 6%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 40% 9%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 40% 9%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 221 83% 60%;
+    --primary-foreground: 222 47% 8%;
+
+    --secondary: 217 33% 18%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 221 83% 60%;
+    --accent-foreground: 222 47% 8%;
+
+    --destructive: 0 72% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --success: 142 65% 47%;
+    --success-foreground: 0 0% 100%;
+
+    --warning: 38 92% 55%;
+    --warning-foreground: 222 47% 8%;
+
+    --border: 217 33% 18%;
+    --input: 217 33% 20%;
+    --ring: 221 83% 60%;
+
+    --meta-navy: 221 70% 45%;
+    --meta-blue: 221 83% 60%;
+    --meta-sky: 205 90% 60%;
+
+    --gradient-hero: linear-gradient(135deg, hsl(222 47% 10%) 0%, hsl(226 60% 22%) 100%);
+    --gradient-button: linear-gradient(135deg, hsl(221 83% 50%) 0%, hsl(205 90% 56%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(221 83% 56%) 0%, hsl(205 90% 60%) 100%);
+
+    --shadow-card: 0 4px 24px -6px hsl(0 0% 0% / 0.5);
+    --shadow-glow: 0 0 48px -12px hsl(221 83% 60% / 0.5);
+
+    --sidebar-background: 222 47% 8%;
+    --sidebar-foreground: 210 30% 80%;
+    --sidebar-primary: 221 83% 60%;
+    --sidebar-primary-foreground: 222 47% 8%;
+    --sidebar-accent: 217 33% 15%;
+    --sidebar-accent-foreground: 210 40% 98%;
+    --sidebar-border: 217 33% 16%;
+    --sidebar-ring: 221 83% 60%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+    font-family: "Inter", sans-serif;
+    /* Suporte a notch / safe-area no iPhone */
+    padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Evita zoom automático no iOS ao focar inputs (fonte < 16px) */
+  input, select, textarea {
+    font-size: 16px;
+  }
+}
+
+@layer components {
+  .meta-glass {
+    @apply bg-background/70 backdrop-blur-xl border border-border/60;
+  }
+
+  .meta-card {
+    @apply bg-card rounded-2xl border border-border/60 transition-all duration-300;
+    box-shadow: var(--shadow-md);
+  }
+
+  .meta-card:hover {
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Botão padrão de toque confortável no mobile */
+  .meta-touch {
+    @apply min-h-12 px-5 text-base;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .bg-grid {
+    background-image:
+      linear-gradient(to right, hsl(var(--border) / 0.5) 1px, transparent 1px),
+      linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px);
+    background-size: 56px 56px;
+  }
+}
