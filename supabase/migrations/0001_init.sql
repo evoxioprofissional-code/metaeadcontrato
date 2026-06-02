@@ -360,8 +360,9 @@ create policy "storage_staff_read" on storage.objects
 -- Seed — dados de exemplo
 -- --------------------------------------------------------------------------
 insert into public.units (name, address, city, state, phone, active) values
-  ('Unidade Centro', 'Av. Principal, 1000', 'São Paulo', 'SP', '(11) 4000-0000', true),
-  ('Unidade Zona Norte', 'Rua das Flores, 250', 'São Paulo', 'SP', '(11) 4000-0001', true)
+  ('Unidade Marabá', 'Centro', 'Marabá', 'PA', '(94) 0000-0000', true),
+  ('Unidade São Domingos do Araguaia', 'Centro', 'São Domingos do Araguaia', 'PA', '(94) 0000-0000', true),
+  ('Unidade Itupiranga', 'Centro', 'Itupiranga', 'PA', '(94) 0000-0000', true)
 on conflict do nothing;
 
 insert into public.courses (name, slug, description, duration_months, price, turnos, active) values

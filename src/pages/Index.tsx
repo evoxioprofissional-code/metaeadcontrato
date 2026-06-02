@@ -55,7 +55,7 @@ export default function Index() {
             </div>
             <div className="leading-tight">
               <p className="text-sm font-bold tracking-tight">Grupo Educacional Meta</p>
-              <p className="text-[11px] text-muted-foreground">Cursos profissionalizantes</p>
+              <p className="text-[11px] text-muted-foreground">Seu sucesso é nossa meta</p>
             </div>
           </div>
           <ThemeToggle />
@@ -72,7 +72,7 @@ export default function Index() {
             transition={{ duration: 0.4 }}
             className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3.5 py-1.5 text-xs font-medium text-muted-foreground"
           >
-            Matrículas 2026 abertas · Unidades em São Paulo
+            Há mais de 10 anos capacitando para o mercado de trabalho
           </motion.span>
 
           <motion.h1
@@ -97,7 +97,7 @@ export default function Index() {
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.15 }}
-            className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+            className="mt-8 flex justify-center"
           >
             <Button
               variant="gradient"
@@ -107,9 +107,6 @@ export default function Index() {
             >
               Iniciar matrícula
               <ArrowRight className="size-5" />
-            </Button>
-            <Button variant="outline" size="xl" className="w-full sm:w-auto" asChild>
-              <a href="#cursos">Ver cursos</a>
             </Button>
           </motion.div>
         </div>
@@ -164,7 +161,7 @@ export default function Index() {
       <footer className="border-t border-border/60">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-5 py-6 text-xs text-muted-foreground sm:flex-row">
           <span>© 2026 Grupo Educacional Meta</span>
-          <span>Matrícula online · Atendimento (11) 4000-0000</span>
+          <span>Marabá · São Domingos do Araguaia · Itupiranga — Pará</span>
         </div>
       </footer>
     </div>
