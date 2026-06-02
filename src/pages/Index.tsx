@@ -1,108 +1,172 @@
 import { motion } from "framer-motion";
-import { ArrowRight, GraduationCap, ShieldCheck, Sparkles, Clock } from "lucide-react";
+import {
+  ArrowRight,
+  Briefcase,
+  FileSignature,
+  GraduationCap,
+  IdCard,
+  Laptop,
+  Palette,
+  Stethoscope,
+  UploadCloud,
+} from "lucide-react";
 
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
-const features = [
-  { icon: Clock, title: "Em poucos minutos", desc: "Matrícula 100% online, sem filas." },
-  { icon: ShieldCheck, title: "Assinatura digital", desc: "Válida, segura e com registro de IP." },
-  { icon: Sparkles, title: "Experiência premium", desc: "Pensada primeiro para o seu celular." },
+const steps = [
+  {
+    icon: IdCard,
+    title: "Seus dados",
+    desc: "Preencha nome, CPF, contato e endereço. O CEP completa o resto sozinho.",
+  },
+  {
+    icon: UploadCloud,
+    title: "Documentos",
+    desc: "Envie RG, CPF e comprovante de residência direto pela câmera do celular.",
+  },
+  {
+    icon: FileSignature,
+    title: "Assinatura",
+    desc: "Leia o contrato, assine na tela com o dedo e receba o comprovante por e-mail.",
+  },
 ];
+
+const courses = [
+  { icon: Laptop, name: "Técnico em Informática" },
+  { icon: Briefcase, name: "Auxiliar Administrativo" },
+  { icon: Palette, name: "Design Gráfico" },
+  { icon: Stethoscope, name: "Técnico em Enfermagem" },
+];
+
+function scrollToMatricula() {
+  document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
+}
 
 export default function Index() {
   return (
-    <div className="relative min-h-dvh overflow-hidden bg-background">
-      {/* Fundo decorativo */}
-      <div className="pointer-events-none absolute inset-0 bg-grid opacity-40 [mask-image:radial-gradient(ellipse_at_top,black,transparent_70%)]" />
-      <div className="pointer-events-none absolute -top-40 left-1/2 size-[36rem] -translate-x-1/2 rounded-full bg-gradient-accent opacity-20 blur-3xl" />
-
-      {/* Navbar */}
-      <header className="relative z-10 mx-auto flex max-w-6xl items-center justify-between px-5 py-5">
-        <div className="flex items-center gap-2.5">
-          <div className="flex size-10 items-center justify-center rounded-xl bg-gradient-button text-primary-foreground shadow-meta-md">
-            <GraduationCap className="size-6" />
+    <div className="min-h-dvh bg-background">
+      {/* Header */}
+      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3.5">
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+              <GraduationCap className="size-5" />
+            </div>
+            <div className="leading-tight">
+              <p className="text-sm font-bold tracking-tight">Grupo Educacional Meta</p>
+              <p className="text-[11px] text-muted-foreground">Cursos profissionalizantes</p>
+            </div>
           </div>
-          <div className="leading-tight">
-            <p className="text-sm font-bold tracking-tight">Grupo Meta</p>
-            <p className="text-[11px] text-muted-foreground">Educacional</p>
-          </div>
+          <ThemeToggle />
         </div>
-        <ThemeToggle />
       </header>
 
       {/* Hero */}
-      <main className="relative z-10 mx-auto flex max-w-3xl flex-col items-center px-5 pb-24 pt-10 text-center sm:pt-16">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="mb-6 inline-flex items-center gap-2 rounded-full border border-border/60 bg-card/60 px-4 py-1.5 text-xs font-medium text-muted-foreground backdrop-blur"
-        >
-          <span className="relative flex size-2">
-            <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
-            <span className="relative inline-flex size-2 rounded-full bg-success" />
-          </span>
-          Matrículas abertas · 2026
-        </motion.div>
+      <section className="relative overflow-hidden">
+        <div className="pointer-events-none absolute inset-x-0 -top-24 h-[26rem] bg-gradient-hero opacity-[0.07]" />
+        <div className="relative mx-auto max-w-3xl px-5 pb-14 pt-12 text-center sm:pt-20">
+          <motion.span
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3.5 py-1.5 text-xs font-medium text-muted-foreground"
+          >
+            Matrículas 2026 abertas · Unidades em São Paulo
+          </motion.span>
 
-        <motion.h1
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.05 }}
-          className="text-balance text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl"
-        >
-          Faça sua matrícula{" "}
-          <span className="bg-gradient-accent bg-clip-text text-transparent">online</span> em
-          poucos minutos
-        </motion.h1>
+          <motion.h1
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.05 }}
+            className="mt-6 text-balance text-4xl font-extrabold leading-[1.08] tracking-tight sm:text-5xl"
+          >
+            Faça sua matrícula online em poucos minutos
+          </motion.h1>
 
-        <motion.p
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.12 }}
-          className="mt-5 max-w-xl text-balance text-base text-muted-foreground sm:text-lg"
-        >
-          Preencha seus dados, assine digitalmente e garanta sua vaga sem sair de casa.
-        </motion.p>
+          <motion.p
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="mx-auto mt-5 max-w-xl text-balance text-base text-muted-foreground sm:text-lg"
+          >
+            Preencha seus dados, assine digitalmente e garanta sua vaga sem sair de casa.
+          </motion.p>
 
-        <motion.div
-          initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55, delay: 0.18 }}
-          className="mt-9 flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row"
-        >
-          <Button variant="gradient" size="xl" className="w-full sm:w-auto" disabled>
-            Iniciar Matrícula
-            <ArrowRight className="size-5" />
-          </Button>
-        </motion.div>
-        <p className="mt-3 text-xs text-muted-foreground">
-          O formulário multietapas chega na <strong>Fase 1</strong>.
-        </p>
+          <motion.div
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center"
+          >
+            <Button
+              variant="gradient"
+              size="xl"
+              className="w-full sm:w-auto"
+              onClick={scrollToMatricula}
+            >
+              Iniciar matrícula
+              <ArrowRight className="size-5" />
+            </Button>
+            <Button variant="outline" size="xl" className="w-full sm:w-auto" asChild>
+              <a href="#cursos">Ver cursos</a>
+            </Button>
+          </motion.div>
+        </div>
+      </section>
 
-        {/* Features */}
-        <motion.ul
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.28 }}
-          className="mt-16 grid w-full gap-4 sm:grid-cols-3"
-        >
-          {features.map((f) => (
-            <li key={f.title} className="meta-card flex flex-col items-center gap-3 p-6 text-center">
-              <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <f.icon className="size-6" />
+      {/* Como funciona */}
+      <section id="como-funciona" className="mx-auto max-w-5xl scroll-mt-20 px-5 py-12 sm:py-16">
+        <div className="mb-8 text-center">
+          <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Como funciona</h2>
+          <p className="mt-2 text-muted-foreground">Três passos, tudo pelo celular.</p>
+        </div>
+        <ol className="grid gap-4 sm:grid-cols-3">
+          {steps.map((s, i) => (
+            <li key={s.title} className="meta-card relative p-6">
+              <span className="absolute right-5 top-5 text-3xl font-extrabold text-muted/40">
+                {String(i + 1).padStart(2, "0")}
+              </span>
+              <div className="mb-4 flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <s.icon className="size-5" />
               </div>
-              <p className="font-semibold">{f.title}</p>
-              <p className="text-sm text-muted-foreground">{f.desc}</p>
+              <h3 className="font-semibold">{s.title}</h3>
+              <p className="mt-1.5 text-sm text-muted-foreground">{s.desc}</p>
             </li>
           ))}
-        </motion.ul>
+        </ol>
+      </section>
 
-        <p className="mt-16 text-xs text-muted-foreground">
-          Fundação pronta · Design system, tema claro/escuro e Supabase configurados.
-        </p>
-      </main>
+      {/* Cursos */}
+      <section id="cursos" className="mx-auto max-w-5xl scroll-mt-20 px-5 pb-16">
+        <div className="mb-6 flex items-end justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">Cursos disponíveis</h2>
+            <p className="mt-2 text-muted-foreground">Escolha o seu na hora da matrícula.</p>
+          </div>
+        </div>
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+          {courses.map((c) => (
+            <li
+              key={c.name}
+              className="meta-card flex flex-col gap-3 p-5 hover:border-primary/40"
+            >
+              <div className="flex size-10 items-center justify-center rounded-lg bg-secondary/10 text-secondary">
+                <c.icon className="size-5" />
+              </div>
+              <span className="text-sm font-medium leading-snug">{c.name}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* Footer */}
+      <footer className="border-t border-border/60">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-2 px-5 py-6 text-xs text-muted-foreground sm:flex-row">
+          <span>© 2026 Grupo Educacional Meta</span>
+          <span>Matrícula online · Atendimento (11) 4000-0000</span>
+        </div>
+      </footer>
     </div>
   );
 }
