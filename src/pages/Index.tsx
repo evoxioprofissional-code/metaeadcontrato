@@ -1,12 +1,15 @@
 import { motion } from "framer-motion";
 import {
   ArrowRight,
+  Blocks,
   Briefcase,
+  Cpu,
   FileSignature,
   GraduationCap,
   IdCard,
-  Laptop,
-  Palette,
+  Monitor,
+  Pill,
+  ShoppingCart,
   Stethoscope,
   UploadCloud,
 } from "lucide-react";
@@ -33,10 +36,13 @@ const steps = [
 ];
 
 const courses = [
-  { icon: Laptop, name: "Técnico em Informática" },
+  { icon: Blocks, name: "Informática Infantil — Aprendendo Brincando" },
+  { icon: Stethoscope, name: "Agente Comunitário de Saúde" },
+  { icon: Cpu, name: "Informática Avançada" },
+  { icon: Monitor, name: "Informática Básica" },
   { icon: Briefcase, name: "Auxiliar Administrativo" },
-  { icon: Palette, name: "Design Gráfico" },
-  { icon: Stethoscope, name: "Técnico em Enfermagem" },
+  { icon: Pill, name: "Atendente de Farmácia" },
+  { icon: ShoppingCart, name: "Operador de Caixa" },
 ];
 
 function scrollToMatricula() {
@@ -142,7 +148,7 @@ export default function Index() {
             <p className="mt-2 text-muted-foreground">Escolha o seu na hora da matrícula.</p>
           </div>
         </div>
-        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {courses.map((c) => (
             <li
               key={c.name}

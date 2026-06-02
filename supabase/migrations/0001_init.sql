@@ -365,11 +365,16 @@ insert into public.units (name, address, city, state, phone, active) values
   ('Unidade Itupiranga', 'Centro', 'Itupiranga', 'PA', '(94) 0000-0000', true)
 on conflict do nothing;
 
-insert into public.courses (name, slug, description, duration_months, price, turnos, active) values
-  ('Técnico em Informática', 'tecnico-informatica', 'Formação completa em informática profissional.', 18, 149.90, '{manha,noite}', true),
-  ('Auxiliar Administrativo', 'auxiliar-administrativo', 'Rotinas administrativas e financeiras.', 12, 129.90, '{manha,tarde,noite}', true),
-  ('Design Gráfico', 'design-grafico', 'Criação visual e ferramentas de design.', 12, 169.90, '{tarde,noite}', true),
-  ('Enfermagem', 'enfermagem', 'Curso técnico em enfermagem.', 24, 299.90, '{manha,tarde,noite}', true)
+-- Cursos reais do Grupo Educacional Meta. Preço/carga horária ficam null aqui
+-- (configurados depois no painel admin) para não inserir valores fictícios.
+insert into public.courses (name, slug, description, turnos, active) values
+  ('Informática Infantil — Aprendendo Brincando', 'informatica-infantil', 'Informática para crianças, aprendendo de forma lúdica.', '{manha,tarde}', true),
+  ('Agente Comunitário de Saúde — Formação Completa', 'agente-comunitario-saude', 'Formação completa para atuação como agente comunitário de saúde.', '{manha,noite}', true),
+  ('Informática Avançada', 'informatica-avancada', 'Aprofundamento em ferramentas e produtividade.', '{noite}', true),
+  ('Informática Básica', 'informatica-basica', 'Fundamentos de informática para o dia a dia e o trabalho.', '{manha,tarde,noite}', true),
+  ('Auxiliar Administrativo', 'auxiliar-administrativo', 'Rotinas administrativas e atendimento.', '{manha,tarde,noite}', true),
+  ('Atendente de Farmácia', 'atendente-farmacia', 'Atendimento e rotinas em farmácia.', '{tarde,noite}', true),
+  ('Operador de Caixa', 'operador-caixa', 'Operação de caixa e atendimento no comércio.', '{manha,noite}', true)
 on conflict (slug) do nothing;
 
 -- Contrato modelo + versão publicada inicial.
