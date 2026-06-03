@@ -10,8 +10,8 @@
 |------|-----------|--------|
 | **0** | Fundação (scaffold + docs + design system + schema) | ✅ Concluída |
 | **1** | Landing + Formulário multietapas (mobile-first) | ✅ Concluída |
-| **2** | Contrato + Assinatura digital | ⏳ Aguardando aprovação |
-| **3** | Finalização (PDF + e-mail + nº de matrícula) | ⬜ Planejada |
+| **2** | Contrato + Assinatura digital | ✅ Concluída |
+| **3** | Finalização (PDF + e-mail + nº de matrícula) | ⏳ Aguardando aprovação |
 | **4** | Painel administrativo | ⬜ Planejada |
 | **5** | Editor de contratos (versionamento) | ⬜ Planejada |
 | **6** | Polimento & qualidade (Lighthouse, seed, testes) | ⬜ Planejada |

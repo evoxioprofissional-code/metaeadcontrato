@@ -198,4 +198,12 @@
       linear-gradient(to bottom, hsl(var(--border) / 0.5) 1px, transparent 1px);
     background-size: 56px 56px;
   }
+
+  /* Campo a preencher dentro do contrato (valores que a escola define depois) */
+  .contract-blank {
+    display: inline-block;
+    min-width: 7rem;
+    border-bottom: 1px solid hsl(var(--muted-foreground) / 0.6);
+    line-height: 1;
+  }
 }

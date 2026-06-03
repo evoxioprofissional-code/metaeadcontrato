@@ -1,11 +1,21 @@
 import { useMemo, useState, type ReactNode } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Check, GraduationCap, Loader2, Pencil } from "lucide-react";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  CheckCircle2,
+  GraduationCap,
+  MessageCircle,
+  Pencil,
+} from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
+import { ContractStep } from "@/components/matricula/ContractStep";
+import type { SignatureValue } from "@/components/matricula/SignaturePad";
 import { Step1Dados } from "@/components/matricula/steps/Step1Dados";
 import { Step2Contato } from "@/components/matricula/steps/Step2Contato";
 import { Step3Endereco } from "@/components/matricula/steps/Step3Endereco";
@@ -17,14 +27,10 @@ import {
 } from "@/components/matricula/steps/Step5Documentos";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  COURSES,
-  ESTADO_CIVIL_OPTS,
-  SEXO_OPTS,
-  TURNOS,
-  UNITS,
-} from "@/data/catalog";
+import { COURSES, ESTADO_CIVIL_OPTS, SEXO_OPTS, TURNOS, UNITS } from "@/data/catalog";
+import { useContract } from "@/hooks/useContract";
 import { clearAutosave, loadAutosave, useAutosave } from "@/hooks/useAutosave";
+import { buildContractData, mergeContract } from "@/lib/contract";
 import {
   defaultEnrollment,
   enrollmentSchema,
@@ -35,6 +41,10 @@ import {
 const STORAGE_KEY = "matricula:rascunho";
 const STEP_TITLES = ["Dados pessoais", "Contato", "Endereço", "Curso", "Documentos"];
 const REQUIRED_DOCS: DocType[] = ["rg_frente", "rg_verso", "cpf", "comprovante_residencia"];
+const WHATSAPP_URL =
+  "https://api.whatsapp.com/send/?phone=94992582190&text&type=phone_number&app_absent=0";
+
+type Phase = "form" | "review" | "contract" | "success";
 
 function labelOf<T extends { value?: string; slug?: string; id?: string; name?: string; label?: string }>(
   list: readonly T[],
@@ -52,16 +62,24 @@ export default function Matricula() {
     defaultValues: { ...defaultEnrollment, ...(loadAutosave<EnrollmentForm>(STORAGE_KEY) ?? {}) },
   });
 
+  const [phase, setPhase] = useState<Phase>("form");
   const [step, setStep] = useState(0);
   const [docs, setDocs] = useState<DocFiles>({});
   const [docError, setDocError] = useState<string>();
-  const [reviewing, setReviewing] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const [signature, setSignature] = useState<SignatureValue | null>(null);
+  const [accepted, setAccepted] = useState(false);
 
   const values = methods.watch();
   useAutosave(STORAGE_KEY, values);
 
-  const progress = useMemo(() => ((step + 1) / STEP_TITLES.length) * 100, [step]);
+  const contractQuery = useContract();
+  const mergedHtml = useMemo(
+    () => (contractQuery.data ? mergeContract(contractQuery.data.content_html, buildContractData(values)) : undefined),
+    [contractQuery.data, values],
+  );
+
+  const docsCount = Object.keys(docs).length;
+  const progress = ((step + 1) / STEP_TITLES.length) * 100;
 
   async function next() {
     const fields = STEP_FIELDS[step];
@@ -70,47 +88,45 @@ export default function Matricula() {
 
     if (step < STEP_TITLES.length - 1) {
       setStep((s) => s + 1);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      scrollTop();
       return;
     }
-
-    // Última etapa: valida documentos antes de revisar.
     const missing = REQUIRED_DOCS.filter((d) => !docs[d]);
     if (missing.length > 0) {
       setDocError("Envie os 4 documentos para continuar.");
       return;
     }
     setDocError(undefined);
-    setReviewing(true);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    setPhase("review");
+    scrollTop();
   }
 
   function back() {
-    if (reviewing) {
-      setReviewing(false);
-      return;
-    }
+    if (phase === "contract") return setPhase("review"), scrollTop();
+    if (phase === "review") return setPhase("form"), scrollTop();
     if (step === 0) return;
     setStep((s) => s - 1);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    scrollTop();
   }
 
-  // Fase 2 substitui isto pela navegação à assinatura do contrato.
-  function goToContract() {
-    setSubmitting(true);
-    setTimeout(() => {
-      setSubmitting(false);
-      toast.success("Cadastro concluído! A assinatura do contrato será o próximo passo.");
-    }, 700);
+  function editAt(target: number) {
+    setPhase("form");
+    setStep(target);
   }
 
-  function resetDraft() {
+  function finalize() {
+    if (!signature) {
+      toast.error("Faça sua assinatura para concluir.");
+      return;
+    }
+    if (!accepted) {
+      toast.error("Marque que você leu e concorda com o contrato.");
+      return;
+    }
+    // Fase 3 fará o envio real (Supabase + nº de matrícula + IP + PDF + e-mail).
     clearAutosave(STORAGE_KEY);
-    methods.reset(defaultEnrollment);
-    setDocs({});
-    setStep(0);
-    setReviewing(false);
-    toast.message("Cadastro reiniciado.");
+    setPhase("success");
+    scrollTop();
   }
 
   const steps = [
@@ -133,17 +149,60 @@ export default function Matricula() {
     />,
   ];
 
+  // ----- Tela de sucesso (fim do fluxo) -----
+  if (phase === "success") {
+    const curso = labelOf(COURSES, values.courseSlug, "slug");
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-5 py-10 text-center">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 16 }}
+          className="mb-6 flex size-20 items-center justify-center rounded-full bg-success/10 text-success"
+        >
+          <CheckCircle2 className="size-12" />
+        </motion.div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Contrato assinado, {values.fullName?.split(" ")[0] || "tudo certo"}!
+        </h1>
+        <p className="mt-2 max-w-sm text-muted-foreground">
+          Você concluiu sua matrícula no curso <strong>{curso}</strong>. Em seguida você recebe a
+          confirmação e o comprovante.
+        </p>
+
+        <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
+          <Button
+            asChild
+            size="xl"
+            className="bg-[#25D366] text-white hover:bg-[#1ebe5d] focus-visible:ring-[#25D366]"
+          >
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="size-5" />
+              Falar no WhatsApp
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link to="/">Voltar ao início</Link>
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const counter = phase === "form" ? `${step + 1}/5` : "✓";
+  const title = phase === "form" ? STEP_TITLES[step] : phase === "review" ? "Revisão" : "Contrato";
+
   return (
     <FormProvider {...methods}>
       <div className="flex min-h-dvh flex-col bg-background">
-        {/* Cabeçalho + barra de progresso fixa */}
+        {/* Cabeçalho + progresso */}
         <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-xl">
           <div className="mx-auto w-full max-w-xl px-4 py-3">
             <div className="flex items-center justify-between">
               <button
                 type="button"
                 onClick={back}
-                disabled={step === 0 && !reviewing}
+                disabled={phase === "form" && step === 0}
                 className="flex size-9 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted disabled:opacity-0"
                 aria-label="Voltar"
               >
@@ -155,15 +214,11 @@ export default function Matricula() {
                 </span>
                 <span className="text-sm font-semibold">Matrícula</span>
               </Link>
-              <span className="w-9 text-right text-xs font-medium text-muted-foreground">
-                {reviewing ? "✓" : `${step + 1}/5`}
-              </span>
+              <span className="w-9 text-right text-xs font-medium text-muted-foreground">{counter}</span>
             </div>
             <div className="mt-3">
-              <Progress value={reviewing ? 100 : progress} />
-              <p className="mt-2 text-sm font-medium">
-                {reviewing ? "Revisão" : STEP_TITLES[step]}
-              </p>
+              <Progress value={phase === "form" ? progress : 100} />
+              <p className="mt-2 text-sm font-medium">{title}</p>
             </div>
           </div>
         </header>
@@ -171,7 +226,7 @@ export default function Matricula() {
         {/* Conteúdo */}
         <main className="mx-auto w-full max-w-xl flex-1 px-4 py-6">
           <AnimatePresence mode="wait">
-            {reviewing ? (
+            {phase === "review" ? (
               <motion.div
                 key="review"
                 initial={{ opacity: 0, y: 12 }}
@@ -189,45 +244,60 @@ export default function Matricula() {
                   </p>
                 </div>
 
-                <ReviewSection title="Dados pessoais" onEdit={() => { setReviewing(false); setStep(0); }}>
+                <ReviewSection title="Dados pessoais" onEdit={() => editAt(0)}>
                   <Row label="Nome" value={values.fullName} />
                   <Row label="CPF" value={values.cpf} />
                   <Row label="RG" value={values.rg} />
                   <Row label="Nascimento" value={formatDate(values.birthDate)} />
                   <Row label="Sexo" value={labelOf(SEXO_OPTS, values.sexo, "value")} />
                   <Row label="Estado civil" value={labelOf(ESTADO_CIVIL_OPTS, values.estadoCivil, "value")} />
+                  <Row label="Naturalidade" value={values.naturalidade} />
+                  <Row label="Pai" value={values.fatherName} />
+                  <Row label="Mãe" value={values.motherName} />
                 </ReviewSection>
 
-                <ReviewSection title="Contato" onEdit={() => { setReviewing(false); setStep(1); }}>
+                <ReviewSection title="Contato" onEdit={() => editAt(1)}>
                   <Row label="Telefone" value={values.phone} />
                   <Row label="WhatsApp" value={values.whatsapp} />
                   <Row label="E-mail" value={values.email} />
                 </ReviewSection>
 
-                <ReviewSection title="Endereço" onEdit={() => { setReviewing(false); setStep(2); }}>
+                <ReviewSection title="Endereço" onEdit={() => editAt(2)}>
                   <Row label="Logradouro" value={`${values.street}, ${values.number}`} />
                   <Row label="Bairro" value={values.neighborhood} />
                   <Row label="Cidade/UF" value={`${values.city} - ${values.state}`} />
                   <Row label="CEP" value={values.cep} />
                 </ReviewSection>
 
-                <ReviewSection title="Curso" onEdit={() => { setReviewing(false); setStep(3); }}>
+                <ReviewSection title="Curso" onEdit={() => editAt(3)}>
                   <Row label="Curso" value={labelOf(COURSES, values.courseSlug, "slug")} />
                   <Row label="Turno" value={labelOf(TURNOS, values.turno, "value")} />
                   <Row label="Unidade" value={labelOf(UNITS, values.unitId, "id")} />
                 </ReviewSection>
 
-                <ReviewSection title="Documentos" onEdit={() => { setReviewing(false); setStep(4); }}>
-                  <Row label="Enviados" value={`${Object.keys(docs).length} de 4`} />
+                <ReviewSection title="Documentos" onEdit={() => editAt(4)}>
+                  <Row label="Enviados" value={`${docsCount} de 4`} />
                 </ReviewSection>
-
-                <button
-                  type="button"
-                  onClick={resetDraft}
-                  className="text-xs text-muted-foreground underline-offset-2 hover:underline"
-                >
-                  Reiniciar cadastro
-                </button>
+              </motion.div>
+            ) : phase === "contract" ? (
+              <motion.div
+                key="contract"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25 }}
+              >
+                <ContractStep
+                  loading={contractQuery.isLoading}
+                  error={contractQuery.isError}
+                  version={contractQuery.data?.version}
+                  html={mergedHtml}
+                  docsCount={docsCount}
+                  signature={signature}
+                  onSignatureChange={setSignature}
+                  accepted={accepted}
+                  onAcceptedChange={setAccepted}
+                />
               </motion.div>
             ) : (
               <motion.div
@@ -243,33 +313,40 @@ export default function Matricula() {
           </AnimatePresence>
         </main>
 
-        {/* Barra de ação fixa (estilo app) */}
+        {/* Barra de ação fixa */}
         <footer
           className="sticky bottom-0 z-30 border-t border-border/60 bg-background/90 backdrop-blur-xl"
           style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
         >
           <div className="mx-auto flex w-full max-w-xl gap-3 px-4 py-3">
-            {(step > 0 || reviewing) && (
+            {(phase !== "form" || step > 0) && (
               <Button variant="outline" size="lg" className="flex-1" onClick={back}>
                 <ArrowLeft className="size-5" />
                 Voltar
               </Button>
             )}
-            {reviewing ? (
+            {phase === "form" && (
+              <Button variant="gradient" size="lg" className="flex-[2]" onClick={next}>
+                {step === STEP_TITLES.length - 1 ? "Revisar matrícula" : "Continuar"}
+                <ArrowRight className="size-5" />
+              </Button>
+            )}
+            {phase === "review" && (
+              <Button variant="gradient" size="lg" className="flex-[2]" onClick={() => { setPhase("contract"); scrollTop(); }}>
+                Avançar para o contrato
+                <ArrowRight className="size-5" />
+              </Button>
+            )}
+            {phase === "contract" && (
               <Button
                 variant="gradient"
                 size="lg"
                 className="flex-[2]"
-                onClick={goToContract}
-                disabled={submitting}
+                onClick={finalize}
+                disabled={!signature || !accepted}
               >
-                {submitting ? <Loader2 className="size-5 animate-spin" /> : <Check className="size-5" />}
-                Avançar para o contrato
-              </Button>
-            ) : (
-              <Button variant="gradient" size="lg" className="flex-[2]" onClick={next}>
-                {step === STEP_TITLES.length - 1 ? "Revisar matrícula" : "Continuar"}
-                <ArrowRight className="size-5" />
+                <Check className="size-5" />
+                Finalizar matrícula
               </Button>
             )}
           </div>
@@ -279,15 +356,11 @@ export default function Matricula() {
   );
 }
 
-function ReviewSection({
-  title,
-  onEdit,
-  children,
-}: {
-  title: string;
-  onEdit: () => void;
-  children: ReactNode;
-}) {
+function scrollTop() {
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function ReviewSection({ title, onEdit, children }: { title: string; onEdit: () => void; children: ReactNode }) {
   return (
     <div className="meta-card p-4">
       <div className="mb-2 flex items-center justify-between">

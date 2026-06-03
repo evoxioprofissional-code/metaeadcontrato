@@ -16,6 +16,9 @@ export const enrollmentSchema = z.object({
     }, "Data inválida"),
   sexo: z.string().min(1, "Selecione uma opção"),
   estadoCivil: z.string().min(1, "Selecione o estado civil"),
+  naturalidade: z.string().trim().min(2, "Informe a naturalidade"),
+  fatherName: z.string().trim().min(3, "Informe o nome do pai"),
+  motherName: z.string().trim().min(3, "Informe o nome da mãe"),
 
   // Etapa 2 — Contato
   phone: z.string().min(14, "Telefone incompleto"),
@@ -41,7 +44,7 @@ export type EnrollmentForm = z.infer<typeof enrollmentSchema>;
 
 // Campos validados em cada etapa (para validação parcial ao avançar).
 export const STEP_FIELDS: (keyof EnrollmentForm)[][] = [
-  ["fullName", "cpf", "rg", "birthDate", "sexo", "estadoCivil"],
+  ["fullName", "cpf", "rg", "birthDate", "sexo", "estadoCivil", "naturalidade", "fatherName", "motherName"],
   ["phone", "whatsapp", "email"],
   ["cep", "street", "number", "neighborhood", "city", "state"],
   ["courseSlug", "turno", "unitId"],
@@ -55,6 +58,9 @@ export const defaultEnrollment: EnrollmentForm = {
   birthDate: "",
   sexo: "",
   estadoCivil: "",
+  naturalidade: "",
+  fatherName: "",
+  motherName: "",
   phone: "",
   whatsapp: "",
   email: "",

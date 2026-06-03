@@ -101,24 +101,58 @@ export function Step1Dados() {
         />
       </Field>
 
-      <Field label="Estado civil" error={errors.estadoCivil?.message}>
-        <Controller
-          control={control}
-          name="estadoCivil"
-          render={({ field }) => (
-            <Select value={field.value} onValueChange={field.onChange}>
-              <SelectTrigger aria-invalid={!!errors.estadoCivil}>
-                <SelectValue placeholder="Selecione" />
-              </SelectTrigger>
-              <SelectContent>
-                {ESTADO_CIVIL_OPTS.map((opt) => (
-                  <SelectItem key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
+      <div className="grid grid-cols-2 gap-4">
+        <Field label="Estado civil" error={errors.estadoCivil?.message}>
+          <Controller
+            control={control}
+            name="estadoCivil"
+            render={({ field }) => (
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger aria-invalid={!!errors.estadoCivil}>
+                  <SelectValue placeholder="Selecione" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ESTADO_CIVIL_OPTS.map((opt) => (
+                    <SelectItem key={opt.value} value={opt.value}>
+                      {opt.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          />
+        </Field>
+
+        <Field label="Naturalidade" htmlFor="naturalidade" error={errors.naturalidade?.message}>
+          <Input
+            id="naturalidade"
+            autoCapitalize="words"
+            placeholder="Cidade onde nasceu"
+            aria-invalid={!!errors.naturalidade}
+            {...register("naturalidade")}
+          />
+        </Field>
+      </div>
+
+      <Field label="Nome do pai" htmlFor="fatherName" error={errors.fatherName?.message}>
+        <Input
+          id="fatherName"
+          autoComplete="off"
+          autoCapitalize="words"
+          placeholder="Nome completo do pai"
+          aria-invalid={!!errors.fatherName}
+          {...register("fatherName")}
+        />
+      </Field>
+
+      <Field label="Nome da mãe" htmlFor="motherName" error={errors.motherName?.message}>
+        <Input
+          id="motherName"
+          autoComplete="off"
+          autoCapitalize="words"
+          placeholder="Nome completo da mãe"
+          aria-invalid={!!errors.motherName}
+          {...register("motherName")}
         />
       </Field>
     </div>
