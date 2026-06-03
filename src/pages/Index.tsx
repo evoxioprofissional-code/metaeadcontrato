@@ -14,6 +14,8 @@ import {
   UploadCloud,
 } from "lucide-react";
 
+import { Link } from "react-router-dom";
+
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
@@ -44,10 +46,6 @@ const courses = [
   { icon: Pill, name: "Atendente de Farmácia" },
   { icon: ShoppingCart, name: "Operador de Caixa" },
 ];
-
-function scrollToMatricula() {
-  document.getElementById("como-funciona")?.scrollIntoView({ behavior: "smooth" });
-}
 
 export default function Index() {
   return (
@@ -105,14 +103,11 @@ export default function Index() {
             transition={{ duration: 0.5, delay: 0.15 }}
             className="mt-8 flex justify-center"
           >
-            <Button
-              variant="gradient"
-              size="xl"
-              className="w-full sm:w-auto"
-              onClick={scrollToMatricula}
-            >
-              Iniciar matrícula
-              <ArrowRight className="size-5" />
+            <Button variant="gradient" size="xl" className="w-full sm:w-auto" asChild>
+              <Link to="/matricula">
+                Iniciar matrícula
+                <ArrowRight className="size-5" />
+              </Link>
             </Button>
           </motion.div>
         </div>

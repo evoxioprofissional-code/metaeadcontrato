@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import Index from "@/pages/Index";
+import Matricula from "@/pages/Matricula";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -15,6 +16,7 @@ export default function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/matricula" element={<Matricula />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

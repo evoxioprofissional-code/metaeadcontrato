@@ -9,8 +9,8 @@
 | Fase | Descrição | Status |
 |------|-----------|--------|
 | **0** | Fundação (scaffold + docs + design system + schema) | ✅ Concluída |
-| **1** | Landing + Formulário multietapas (mobile-first) | ⏳ Aguardando aprovação |
-| **2** | Contrato + Assinatura digital | ⬜ Planejada |
+| **1** | Landing + Formulário multietapas (mobile-first) | ✅ Concluída |
+| **2** | Contrato + Assinatura digital | ⏳ Aguardando aprovação |
 | **3** | Finalização (PDF + e-mail + nº de matrícula) | ⬜ Planejada |
 | **4** | Painel administrativo | ⬜ Planejada |
 | **5** | Editor de contratos (versionamento) | ⬜ Planejada |
@@ -38,6 +38,8 @@ checkbox de aceite obrigatório.
 ### Fase 3 — Finalização (PDF + e-mail) 📄
 Edge Function gera PDF (pdf-lib) com dados, contrato, assinatura, data/hora, **IP**, código único,
 versão. Anexa documentos, envia e-mail (aluno + admin), tela de sucesso + "Baixar comprovante".
+- **Botão WhatsApp** na tela de sucesso (após contrato assinado):
+  `https://api.whatsapp.com/send/?phone=94992582190` (atendimento da escola).
 
 ### Fase 4 — Painel administrativo 📊
 Auth Supabase + perfis (Administrador / Secretária / Financeiro). Dashboard (cards, gráficos,
