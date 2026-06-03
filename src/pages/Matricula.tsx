@@ -15,6 +15,7 @@ import { Link } from "react-router-dom";
 import { toast } from "sonner";
 
 import { ContractStep } from "@/components/matricula/ContractStep";
+import { ResponsavelStep } from "@/components/matricula/ResponsavelStep";
 import type { SignatureValue } from "@/components/matricula/SignaturePad";
 import { Step1Dados } from "@/components/matricula/steps/Step1Dados";
 import { Step2Contato } from "@/components/matricula/steps/Step2Contato";
@@ -28,9 +29,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { COURSES, ESTADO_CIVIL_OPTS, SEXO_OPTS, TURNOS, UNITS } from "@/data/catalog";
-import { useContract } from "@/hooks/useContract";
+import { useAuth } from "@/hooks/useAuth";
+import { useContractsList } from "@/hooks/useContract";
 import { clearAutosave, loadAutosave, useAutosave } from "@/hooks/useAutosave";
-import { buildContractData, mergeContract } from "@/lib/contract";
+import { buildContractData, mergeContract, type Financeiro } from "@/lib/contract";
 import {
   defaultEnrollment,
   enrollmentSchema,
@@ -44,7 +46,7 @@ const REQUIRED_DOCS: DocType[] = ["rg_frente", "rg_verso", "cpf", "comprovante_r
 const WHATSAPP_URL =
   "https://api.whatsapp.com/send/?phone=94992582190&text&type=phone_number&app_absent=0";
 
-type Phase = "form" | "review" | "contract" | "success";
+type Phase = "form" | "review" | "responsavel" | "contract" | "success";
 
 function labelOf<T extends { value?: string; slug?: string; id?: string; name?: string; label?: string }>(
   list: readonly T[],
@@ -62,20 +64,30 @@ export default function Matricula() {
     defaultValues: { ...defaultEnrollment, ...(loadAutosave<EnrollmentForm>(STORAGE_KEY) ?? {}) },
   });
 
+  const { isStaff } = useAuth();
   const [phase, setPhase] = useState<Phase>("form");
   const [step, setStep] = useState(0);
   const [docs, setDocs] = useState<DocFiles>({});
   const [docError, setDocError] = useState<string>();
   const [signature, setSignature] = useState<SignatureValue | null>(null);
   const [accepted, setAccepted] = useState(false);
+  const [selectedContractId, setSelectedContractId] = useState<string>();
+  const [financeiro, setFinanceiro] = useState<Financeiro>({});
 
   const values = methods.watch();
   useAutosave(STORAGE_KEY, values);
 
-  const contractQuery = useContract();
+  const contractsQuery = useContractsList();
+  const contracts = contractsQuery.data ?? [];
+  const selectedContract =
+    contracts.find((c) => c.id === selectedContractId) ?? (contracts.length === 1 ? contracts[0] : undefined);
+
   const mergedHtml = useMemo(
-    () => (contractQuery.data ? mergeContract(contractQuery.data.content_html, buildContractData(values)) : undefined),
-    [contractQuery.data, values],
+    () =>
+      selectedContract
+        ? mergeContract(selectedContract.content_html, buildContractData(values, financeiro))
+        : undefined,
+    [selectedContract, values, financeiro],
   );
 
   const docsCount = Object.keys(docs).length;
@@ -102,7 +114,8 @@ export default function Matricula() {
   }
 
   function back() {
-    if (phase === "contract") return setPhase("review"), scrollTop();
+    if (phase === "contract") return setPhase("responsavel"), scrollTop();
+    if (phase === "responsavel") return setPhase("review"), scrollTop();
     if (phase === "review") return setPhase("form"), scrollTop();
     if (step === 0) return;
     setStep((s) => s - 1);
@@ -190,7 +203,14 @@ export default function Matricula() {
   }
 
   const counter = phase === "form" ? `${step + 1}/5` : "✓";
-  const title = phase === "form" ? STEP_TITLES[step] : phase === "review" ? "Revisão" : "Contrato";
+  const title =
+    phase === "form"
+      ? STEP_TITLES[step]
+      : phase === "review"
+        ? "Revisão"
+        : phase === "responsavel"
+          ? "Responsável"
+          : "Contrato";
 
   return (
     <FormProvider {...methods}>
@@ -279,6 +299,23 @@ export default function Matricula() {
                   <Row label="Enviados" value={`${docsCount} de 4`} />
                 </ReviewSection>
               </motion.div>
+            ) : phase === "responsavel" ? (
+              <motion.div
+                key="responsavel"
+                initial={{ opacity: 0, y: 12 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -12 }}
+                transition={{ duration: 0.25 }}
+              >
+                <ResponsavelStep
+                  contracts={contracts}
+                  loadingContracts={contractsQuery.isLoading}
+                  selectedId={selectedContract?.id}
+                  onSelect={setSelectedContractId}
+                  financeiro={financeiro}
+                  onChange={setFinanceiro}
+                />
+              </motion.div>
             ) : phase === "contract" ? (
               <motion.div
                 key="contract"
@@ -288,9 +325,9 @@ export default function Matricula() {
                 transition={{ duration: 0.25 }}
               >
                 <ContractStep
-                  loading={contractQuery.isLoading}
-                  error={contractQuery.isError}
-                  version={contractQuery.data?.version}
+                  loading={contractsQuery.isLoading}
+                  error={contractsQuery.isError}
+                  version={selectedContract?.version}
                   html={mergedHtml}
                   docsCount={docsCount}
                   signature={signature}
@@ -332,8 +369,20 @@ export default function Matricula() {
               </Button>
             )}
             {phase === "review" && (
-              <Button variant="gradient" size="lg" className="flex-[2]" onClick={() => { setPhase("contract"); scrollTop(); }}>
-                Avançar para o contrato
+              <Button variant="gradient" size="lg" className="flex-[2]" onClick={() => { setPhase("responsavel"); scrollTop(); }}>
+                Avançar
+                <ArrowRight className="size-5" />
+              </Button>
+            )}
+            {phase === "responsavel" && (
+              <Button
+                variant="gradient"
+                size="lg"
+                className="flex-[2]"
+                disabled={!isStaff || !selectedContract}
+                onClick={() => { setPhase("contract"); scrollTop(); }}
+              >
+                Ir para a assinatura
                 <ArrowRight className="size-5" />
               </Button>
             )}

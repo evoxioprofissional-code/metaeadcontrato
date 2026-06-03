@@ -24,9 +24,17 @@ function formatDate(iso?: string) {
   return d && m && y ? `${d}/${m}/${y}` : iso;
 }
 
-// Monta os valores dos tokens {{...}} a partir dos dados do formulário.
-// Valores financeiros/duração ficam em branco (definidos pela escola no admin).
-export function buildContractData(v: EnrollmentForm): Record<string, string> {
+export interface Financeiro {
+  valorMatricula?: string;
+  numMensalidades?: string;
+  valorMensalidade?: string;
+  duracao?: string;
+  recebedor?: string;
+}
+
+// Monta os valores dos tokens {{...}} a partir dos dados do aluno + dados do responsável.
+// Campos financeiros vêm da "etapa do responsável"; sem eles, ficam em branco.
+export function buildContractData(v: EnrollmentForm, f: Financeiro = {}): Record<string, string> {
   const curso = COURSES.find((c) => c.slug === v.courseSlug)?.name ?? "";
   const estadoCivil = ESTADO_CIVIL_OPTS.find((e) => e.value === v.estadoCivil)?.label ?? "";
   const hoje = new Date().toLocaleDateString("pt-BR");
@@ -46,10 +54,11 @@ export function buildContractData(v: EnrollmentForm): Record<string, string> {
     pai: v.fatherName,
     mae: v.motherName,
     email: v.email,
-    valor_matricula: "",
-    num_mensalidades: "",
-    valor_mensalidade: "",
-    duracao: "",
+    valor_matricula: f.valorMatricula ?? "",
+    num_mensalidades: f.numMensalidades ?? "",
+    valor_mensalidade: f.valorMensalidade ?? "",
+    duracao: f.duracao ?? "",
+    recebedor: f.recebedor ?? "",
     data: hoje,
   };
 }
