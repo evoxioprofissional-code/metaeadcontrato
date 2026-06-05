@@ -6,7 +6,9 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
+  Download,
   GraduationCap,
+  Loader2,
   MessageCircle,
   Pencil,
 } from "lucide-react";
@@ -33,6 +35,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useContractsList } from "@/hooks/useContract";
 import { clearAutosave, loadAutosave, useAutosave } from "@/hooks/useAutosave";
 import { buildContractData, mergeContract, type Financeiro } from "@/lib/contract";
+import { generateComprovante } from "@/lib/pdf";
+import { submitEnrollment, type SubmitResult } from "@/services/enrollment";
 import {
   defaultEnrollment,
   enrollmentSchema,
@@ -64,7 +68,7 @@ export default function Matricula() {
     defaultValues: { ...defaultEnrollment, ...(loadAutosave<EnrollmentForm>(STORAGE_KEY) ?? {}) },
   });
 
-  const { isStaff } = useAuth();
+  const { isStaff, user } = useAuth();
   const [phase, setPhase] = useState<Phase>("form");
   const [step, setStep] = useState(0);
   const [docs, setDocs] = useState<DocFiles>({});
@@ -73,6 +77,8 @@ export default function Matricula() {
   const [accepted, setAccepted] = useState(false);
   const [selectedContractId, setSelectedContractId] = useState<string>();
   const [financeiro, setFinanceiro] = useState<Financeiro>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<SubmitResult | null>(null);
 
   const values = methods.watch();
   useAutosave(STORAGE_KEY, values);
@@ -127,7 +133,7 @@ export default function Matricula() {
     setStep(target);
   }
 
-  function finalize() {
+  async function finalize() {
     if (!signature) {
       toast.error("Faça sua assinatura para concluir.");
       return;
@@ -136,10 +142,29 @@ export default function Matricula() {
       toast.error("Marque que você leu e concorda com o contrato.");
       return;
     }
-    // Fase 3 fará o envio real (Supabase + nº de matrícula + IP + PDF + e-mail).
-    clearAutosave(STORAGE_KEY);
-    setPhase("success");
-    scrollTop();
+    if (!selectedContract) {
+      toast.error("Selecione o contrato na etapa do responsável.");
+      return;
+    }
+    setSubmitting(true);
+    try {
+      const res = await submitEnrollment({
+        values,
+        docs,
+        signature,
+        financeiro,
+        contractVersionId: selectedContract.id,
+        responsavelId: user?.id,
+      });
+      setResult(res);
+      clearAutosave(STORAGE_KEY);
+      setPhase("success");
+      scrollTop();
+    } catch (e: any) {
+      toast.error("Não foi possível salvar a matrícula. " + (e?.message ?? "Tente novamente."));
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   const steps = [
@@ -162,6 +187,19 @@ export default function Matricula() {
     />,
   ];
 
+  function downloadComprovante() {
+    if (!result || !signature || !mergedHtml) return;
+    generateComprovante({
+      enrollmentCode: result.enrollmentCode,
+      contractHtml: mergedHtml,
+      signatureDataUrl: signature.dataUrl,
+      studentName: values.fullName,
+      courseName: labelOf(COURSES, values.courseSlug, "slug"),
+      version: selectedContract?.version ?? "",
+      ip: result.ip,
+    });
+  }
+
   // ----- Tela de sucesso (fim do fluxo) -----
   if (phase === "success") {
     const curso = labelOf(COURSES, values.courseSlug, "slug");
@@ -179,14 +217,24 @@ export default function Matricula() {
           Contrato assinado, {values.fullName?.split(" ")[0] || "tudo certo"}!
         </h1>
         <p className="mt-2 max-w-sm text-muted-foreground">
-          Você concluiu sua matrícula no curso <strong>{curso}</strong>. Em seguida você recebe a
-          confirmação e o comprovante.
+          Você concluiu sua matrícula no curso <strong>{curso}</strong>.
         </p>
 
+        {result && (
+          <div className="mt-5 rounded-2xl border border-border/60 bg-card px-8 py-4">
+            <p className="text-xs text-muted-foreground">Número da matrícula</p>
+            <p className="text-2xl font-bold tracking-tight text-primary">{result.enrollmentCode}</p>
+          </div>
+        )}
+
         <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
+          <Button variant="gradient" size="xl" onClick={downloadComprovante}>
+            <Download className="size-5" />
+            Baixar comprovante
+          </Button>
           <Button
             asChild
-            size="xl"
+            size="lg"
             className="bg-[#25D366] text-white hover:bg-[#1ebe5d] focus-visible:ring-[#25D366]"
           >
             <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
@@ -392,10 +440,10 @@ export default function Matricula() {
                 size="lg"
                 className="flex-[2]"
                 onClick={finalize}
-                disabled={!signature || !accepted}
+                disabled={!signature || !accepted || submitting}
               >
-                <Check className="size-5" />
-                Finalizar matrícula
+                {submitting ? <Loader2 className="size-5 animate-spin" /> : <Check className="size-5" />}
+                {submitting ? "Salvando…" : "Finalizar matrícula"}
               </Button>
             )}
           </div>

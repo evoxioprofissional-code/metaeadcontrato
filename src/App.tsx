@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/hooks/useAuth";
+import Admin from "@/pages/Admin";
 import Index from "@/pages/Index";
 import Matricula from "@/pages/Matricula";
 import NotFound from "@/pages/NotFound";
@@ -19,6 +20,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/matricula" element={<Matricula />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

@@ -12,10 +12,10 @@
 | **1** | Landing + Formulário multietapas (mobile-first) | ✅ Concluída |
 | **2** | Contrato + Assinatura digital | ✅ Concluída |
 | **3** | Autenticação (staff) + Etapa do Responsável (escolha do contrato + valores) | ✅ Concluída |
-| **4** | Finalização (salvar no Supabase + nº + IP + PDF + e-mail) | ⏳ Aguardando aprovação |
-| **5** | Painel administrativo + fluxo remoto (dono cria + link p/ aluno) | ⬜ Planejada |
+| **4** | Finalização (salvar no Supabase + nº + IP + PDF) + Painel admin em `/admin` | ✅ Concluída (e-mail pendente) |
+| **5** | Fluxo remoto (dono cria + link p/ aluno) | ⬜ Planejada |
 | **6** | Editor de contratos (multi-contrato + versionamento) | ⬜ Planejada |
-| **7** | Polimento & qualidade (Lighthouse, seed, testes) | ⬜ Planejada |
+| **7** | E-mail (Edge Function) + Polimento & qualidade (Lighthouse, seed, testes) | ⬜ Planejada |
 
 ## Detalhe das fases
 
