@@ -37,7 +37,7 @@ import { clearAutosave, loadAutosave, useAutosave } from "@/hooks/useAutosave";
 import { buildContractData, mergeContract, type Financeiro } from "@/lib/contract";
 import { generateComprovante } from "@/lib/pdf";
 import { submitEnrollment, type SubmitResult } from "@/services/enrollment";
-import { getInvite, submitRemoteEnrollment, type InviteData } from "@/services/invites";
+import { getInvite, submitRemoteEnrollment, submitSolicitacao, type InviteData } from "@/services/invites";
 import {
   defaultEnrollment,
   enrollmentSchema,
@@ -87,6 +87,9 @@ export default function Matricula() {
   const [invite, setInvite] = useState<InviteData | null>(null);
   const [inviteLoading, setInviteLoading] = useState(!!conviteToken);
   const [inviteError, setInviteError] = useState(false);
+  const [docsFromInvite, setDocsFromInvite] = useState(false);
+  const [solicitarBusy, setSolicitarBusy] = useState(false);
+  const [solicitacaoSent, setSolicitacaoSent] = useState(false);
   const remote = !!invite;
 
   const values = methods.watch();
@@ -104,6 +107,22 @@ export default function Matricula() {
         if (inv.course_slug) methods.setValue("courseSlug", inv.course_slug);
         if (inv.turno) methods.setValue("turno", inv.turno);
         if (inv.unit_id) methods.setValue("unitId", inv.unit_id);
+        // Pré-preenche dados do aluno vindos de uma solicitação.
+        const sd = inv.student_data;
+        if (sd) {
+          const map: Record<string, keyof EnrollmentForm> = {
+            full_name: "fullName", cpf: "cpf", rg: "rg", birth_date: "birthDate",
+            sexo: "sexo", estado_civil: "estadoCivil", naturalidade: "naturalidade",
+            father_name: "fatherName", mother_name: "motherName", phone: "phone",
+            whatsapp: "whatsapp", email: "email", cep: "cep", street: "street",
+            number: "number", complement: "complement", neighborhood: "neighborhood",
+            city: "city", state: "state",
+          };
+          Object.entries(map).forEach(([k, field]) => {
+            if (sd[k]) methods.setValue(field, sd[k]);
+          });
+        }
+        if (inv.documents && inv.documents.length > 0) setDocsFromInvite(true);
       })
       .catch(() => active && setInviteError(true))
       .finally(() => active && setInviteLoading(false));
@@ -155,10 +174,12 @@ export default function Matricula() {
       scrollTop();
       return;
     }
-    const missing = REQUIRED_DOCS.filter((d) => !docs[d]);
-    if (missing.length > 0) {
-      setDocError("Envie os 3 documentos para continuar.");
-      return;
+    if (!docsFromInvite) {
+      const missing = REQUIRED_DOCS.filter((d) => !docs[d]);
+      if (missing.length > 0) {
+        setDocError("Envie os 3 documentos para continuar.");
+        return;
+      }
     }
     setDocError(undefined);
     setPhase("review");
@@ -229,6 +250,7 @@ export default function Matricula() {
       key="s5"
       files={docs}
       error={docError}
+      alreadySent={docsFromInvite}
       onChange={(type, file) =>
         setDocs((prev) => {
           const copy = { ...prev };
@@ -239,6 +261,20 @@ export default function Matricula() {
       }
     />,
   ];
+
+  async function solicitar() {
+    setSolicitarBusy(true);
+    try {
+      await submitSolicitacao(values, docs);
+      clearAutosave(STORAGE_KEY);
+      setSolicitacaoSent(true);
+      scrollTop();
+    } catch (e: any) {
+      toast.error("Não foi possível enviar a solicitação. " + (e?.message ?? "Tente novamente."));
+    } finally {
+      setSolicitarBusy(false);
+    }
+  }
 
   async function downloadComprovante() {
     if (!result || !signature || !mergedHtml) return;
@@ -252,6 +288,44 @@ export default function Matricula() {
       ip: result.ip,
       schoolSignatureDataUrl: effSchoolSig,
     });
+  }
+
+  // ----- Solicitação enviada (aluno iniciou sem link) -----
+  if (solicitacaoSent) {
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center bg-background px-5 py-10 text-center">
+        <motion.div
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: "spring", stiffness: 200, damping: 16 }}
+          className="mb-6 flex size-20 items-center justify-center rounded-full bg-success/10 text-success"
+        >
+          <CheckCircle2 className="size-12" />
+        </motion.div>
+        <h1 className="text-2xl font-bold tracking-tight">
+          Solicitação enviada, {values.fullName?.split(" ")[0] || "tudo certo"}!
+        </h1>
+        <p className="mt-2 max-w-sm text-muted-foreground">
+          Recebemos seus dados. A secretaria do Grupo Educacional Meta vai finalizar seu contrato e
+          te enviar o link para você <strong>assinar</strong>. Fique de olho no seu WhatsApp/e-mail.
+        </p>
+        <div className="mt-8 flex w-full max-w-xs flex-col gap-3">
+          <Button
+            asChild
+            size="lg"
+            className="bg-[#25D366] text-white hover:bg-[#1ebe5d] focus-visible:ring-[#25D366]"
+          >
+            <a href={WHATSAPP_URL} target="_blank" rel="noopener noreferrer">
+              <MessageCircle className="size-5" />
+              Falar no WhatsApp
+            </a>
+          </Button>
+          <Button asChild variant="outline" size="lg">
+            <Link to="/">Voltar ao início</Link>
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   // ----- Convite remoto: carregando / inválido -----
@@ -440,6 +514,8 @@ export default function Matricula() {
                   onChange={setFinanceiro}
                   schoolSignature={schoolSignature}
                   onSchoolSignatureChange={setSchoolSignature}
+                  onSolicitar={solicitar}
+                  solicitarBusy={solicitarBusy}
                 />
               </motion.div>
             ) : phase === "contract" ? (

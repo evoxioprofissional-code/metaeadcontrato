@@ -1,8 +1,9 @@
-import { LogOut, ShieldCheck } from "lucide-react";
+import { Loader2, LogOut, Send, ShieldCheck } from "lucide-react";
 
 import { StaffLogin } from "@/components/auth/StaffLogin";
 import { Field } from "@/components/matricula/Field";
 import { SignaturePad, type SignatureValue } from "@/components/matricula/SignaturePad";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -24,6 +25,8 @@ interface ResponsavelStepProps {
   onChange: (f: Financeiro) => void;
   schoolSignature: SignatureValue | null;
   onSchoolSignatureChange: (v: SignatureValue | null) => void;
+  onSolicitar?: () => void;
+  solicitarBusy?: boolean;
 }
 
 export function ResponsavelStep({
@@ -35,19 +38,41 @@ export function ResponsavelStep({
   onChange,
   schoolSignature,
   onSchoolSignatureChange,
+  onSolicitar,
+  solicitarBusy,
 }: ResponsavelStepProps) {
   const { isStaff, user, signOut } = useAuth();
 
   if (!isStaff) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-5">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Etapa do responsável</h1>
-          <p className="mt-1 text-muted-foreground">
-            A equipe da escola entra para escolher o contrato e informar os valores.
-          </p>
+          <h1 className="text-2xl font-bold tracking-tight">Quase lá!</h1>
+          <p className="mt-1 text-muted-foreground">Falta só o contrato. Escolha uma opção:</p>
         </div>
-        <StaffLogin subtitle="Entre para liberar esta etapa." />
+
+        {/* Aluno: enviar solicitação */}
+        {onSolicitar && (
+          <div className="meta-card space-y-3 p-5">
+            <h2 className="font-semibold">Sou aluno(a)</h2>
+            <p className="text-sm text-muted-foreground">
+              Envie sua solicitação. A escola define os valores, assina o contrato e te manda o link
+              para você assinar — tudo digital.
+            </p>
+            <Button variant="gradient" size="lg" className="w-full" onClick={onSolicitar} disabled={solicitarBusy}>
+              {solicitarBusy ? <Loader2 className="size-5 animate-spin" /> : <Send className="size-5" />}
+              Enviar solicitação
+            </Button>
+          </div>
+        )}
+
+        {/* Equipe: login (matrícula presencial) */}
+        <div>
+          <p className="mb-2 text-center text-xs uppercase tracking-wide text-muted-foreground">
+            ou, se você é da equipe
+          </p>
+          <StaffLogin subtitle="Entre para concluir a matrícula agora (presencial)." />
+        </div>
       </div>
     );
   }

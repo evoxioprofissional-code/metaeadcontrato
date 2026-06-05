@@ -13,11 +13,17 @@ interface Step5Props {
   files: DocFiles;
   onChange: (type: DocType, file: File | undefined) => void;
   error?: string;
+  alreadySent?: boolean;
 }
 
-export function Step5Documentos({ files, onChange, error }: Step5Props) {
+export function Step5Documentos({ files, onChange, error, alreadySent }: Step5Props) {
   return (
     <div className="space-y-4">
+      {alreadySent && (
+        <p className="rounded-xl border border-success/40 bg-success/5 p-3 text-sm font-medium text-success">
+          ✓ Documentos já enviados na sua solicitação. Você pode seguir direto.
+        </p>
+      )}
       <p className="text-sm text-muted-foreground">
         Envie fotos legíveis. Aceitamos imagem ou PDF (até 8MB cada).
       </p>

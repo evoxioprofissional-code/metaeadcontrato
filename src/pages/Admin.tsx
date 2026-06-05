@@ -1,20 +1,22 @@
 import { useState } from "react";
-import { FileText, LayoutDashboard, Link2, ListChecks, Loader2, LogOut, ShieldCheck } from "lucide-react";
+import { FileText, Inbox, LayoutDashboard, Link2, ListChecks, Loader2, LogOut, ShieldCheck } from "lucide-react";
 
 import { AdminContratos } from "@/components/admin/AdminContratos";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { AdminMatriculas } from "@/components/admin/AdminMatriculas";
 import { AdminNovoLink } from "@/components/admin/AdminNovoLink";
+import { AdminSolicitacoes } from "@/components/admin/AdminSolicitacoes";
 import { StaffLogin } from "@/components/auth/StaffLogin";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
-type Section = "dashboard" | "matriculas" | "novo-link" | "contratos";
+type Section = "dashboard" | "matriculas" | "solicitacoes" | "novo-link" | "contratos";
 
 const NAV: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "matriculas", label: "Matrículas", icon: ListChecks },
+  { id: "solicitacoes", label: "Solicitações", icon: Inbox },
   { id: "novo-link", label: "Gerar link", icon: Link2 },
   { id: "contratos", label: "Contratos", icon: FileText },
 ];
@@ -107,6 +109,8 @@ export default function Admin() {
             <AdminDashboard onOpen={() => setSection("matriculas")} />
           ) : section === "matriculas" ? (
             <AdminMatriculas />
+          ) : section === "solicitacoes" ? (
+            <AdminSolicitacoes />
           ) : section === "novo-link" ? (
             <AdminNovoLink />
           ) : (
