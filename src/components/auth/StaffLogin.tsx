@@ -24,7 +24,16 @@ export function StaffLogin({ title = "Acesso da equipe", subtitle }: StaffLoginP
     setError(undefined);
     const { error } = await signIn(email.trim(), password);
     setLoading(false);
-    if (error) setError("E-mail ou senha incorretos.");
+    if (error) {
+      // Distingue senha errada de erro de configuração/conexão (ex.: chave do Supabase ausente).
+      if (/invalid login credentials/i.test(error)) {
+        setError("E-mail ou senha incorretos.");
+      } else if (/api key|apikey|failed to fetch|networkerror/i.test(error)) {
+        setError("Falha de conexão com o servidor. Verifique as variáveis de ambiente do Supabase.");
+      } else {
+        setError(error);
+      }
+    }
   }
 
   return (
