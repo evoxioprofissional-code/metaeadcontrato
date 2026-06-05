@@ -6,7 +6,6 @@ export type DocFiles = Partial<Record<DocType, File>>;
 const SLOTS: { type: DocType; label: string }[] = [
   { type: "rg_frente", label: "RG — frente" },
   { type: "rg_verso", label: "RG — verso" },
-  { type: "cpf", label: "CPF" },
   { type: "comprovante_residencia", label: "Comprovante de residência" },
 ];
 

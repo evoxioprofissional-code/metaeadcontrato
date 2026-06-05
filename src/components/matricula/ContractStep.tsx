@@ -54,7 +54,7 @@ export function ContractStep({
       {/* Status (estilo DocuSign) */}
       <ul className="meta-card grid gap-2.5 p-4 sm:grid-cols-3">
         <StatusItem done label="Dados preenchidos" />
-        <StatusItem done={docsCount >= 4} label={`Documentos enviados (${docsCount}/4)`} />
+        <StatusItem done={docsCount >= 3} label={`Documentos enviados (${docsCount}/3)`} />
         <StatusItem done={signed && accepted} label="Contrato assinado" />
       </ul>
 

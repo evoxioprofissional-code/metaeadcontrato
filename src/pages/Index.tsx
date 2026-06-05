@@ -28,7 +28,7 @@ const steps = [
   {
     icon: UploadCloud,
     title: "Documentos",
-    desc: "Envie RG, CPF e comprovante de residência direto pela câmera do celular.",
+    desc: "Envie RG e comprovante de residência direto pela câmera do celular.",
   },
   {
     icon: FileSignature,

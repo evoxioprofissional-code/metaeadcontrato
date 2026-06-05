@@ -47,7 +47,7 @@ import {
 
 const STORAGE_KEY = "matricula:rascunho";
 const STEP_TITLES = ["Dados pessoais", "Contato", "Endereço", "Curso", "Documentos"];
-const REQUIRED_DOCS: DocType[] = ["rg_frente", "rg_verso", "cpf", "comprovante_residencia"];
+const REQUIRED_DOCS: DocType[] = ["rg_frente", "rg_verso", "comprovante_residencia"];
 const WHATSAPP_URL =
   "https://api.whatsapp.com/send/?phone=94992582190&text&type=phone_number&app_absent=0";
 
@@ -157,7 +157,7 @@ export default function Matricula() {
     }
     const missing = REQUIRED_DOCS.filter((d) => !docs[d]);
     if (missing.length > 0) {
-      setDocError("Envie os 4 documentos para continuar.");
+      setDocError("Envie os 3 documentos para continuar.");
       return;
     }
     setDocError(undefined);
@@ -420,7 +420,7 @@ export default function Matricula() {
                 </ReviewSection>
 
                 <ReviewSection title="Documentos" onEdit={() => editAt(4)}>
-                  <Row label="Enviados" value={`${docsCount} de 4`} />
+                  <Row label="Enviados" value={`${docsCount} de 3`} />
                 </ReviewSection>
               </motion.div>
             ) : phase === "responsavel" ? (
