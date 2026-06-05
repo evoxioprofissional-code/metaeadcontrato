@@ -31,7 +31,9 @@ export function AdminNovoLink() {
   const [copied, setCopied] = useState(false);
 
   const selected = contracts.find((c) => c.id === contractId);
-  const isSupletivo = /supletivo|ensino m[eé]dio/i.test(selected?.title ?? "");
+  const html = selected?.content_html ?? "";
+  const needAposVenc = html.includes("{{apos_vencimento}}");
+  const needCamisa = html.includes("{{camisa}}");
   const set = (patch: Partial<Financeiro>) => setF((prev) => ({ ...prev, ...patch }));
 
   const whatsappLink = useMemo(
@@ -162,25 +164,29 @@ export function AdminNovoLink() {
         <Input autoCapitalize="words" placeholder="Nome de quem recebeu" value={f.recebedor ?? ""} onChange={(e) => set({ recebedor: e.target.value })} />
       </Field>
 
-      {isSupletivo && (
+      {(needAposVenc || needCamisa) && (
         <div className="grid grid-cols-2 gap-4 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3">
-          <Field label="Após o vencimento (R$)">
-            <Input inputMode="decimal" placeholder="0,00" value={f.aposVencimento ?? ""} onChange={(e) => set({ aposVencimento: e.target.value })} />
-          </Field>
-          <Field label="Camisa">
-            <Select value={f.camisa} onValueChange={(v) => set({ camisa: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Tamanho" />
-              </SelectTrigger>
-              <SelectContent>
-                {CAMISAS.map((t) => (
-                  <SelectItem key={t} value={t}>
-                    {t}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
+          {needAposVenc && (
+            <Field label="Após o vencimento (R$)">
+              <Input inputMode="decimal" placeholder="0,00" value={f.aposVencimento ?? ""} onChange={(e) => set({ aposVencimento: e.target.value })} />
+            </Field>
+          )}
+          {needCamisa && (
+            <Field label="Camisa">
+              <Select value={f.camisa} onValueChange={(v) => set({ camisa: v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Tamanho" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CAMISAS.map((t) => (
+                    <SelectItem key={t} value={t}>
+                      {t}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          )}
         </div>
       )}
 
