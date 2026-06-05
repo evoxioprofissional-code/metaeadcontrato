@@ -48,6 +48,9 @@ export function ResponsavelStep({
   }
 
   const set = (patch: Partial<Financeiro>) => onChange({ ...financeiro, ...patch });
+  const selected = contracts.find((c) => c.id === selectedId);
+  const isSupletivo = /supletivo|ensino m[eé]dio/i.test(selected?.title ?? "");
+  const CAMISAS = ["PP", "P", "M", "G", "GG"];
 
   return (
     <div className="space-y-5">
@@ -134,6 +137,34 @@ export function ResponsavelStep({
           onChange={(e) => set({ recebedor: e.target.value })}
         />
       </Field>
+
+      {isSupletivo && (
+        <div className="grid grid-cols-2 gap-4 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3">
+          <Field label="Após o vencimento (R$)" htmlFor="f_apos">
+            <Input
+              id="f_apos"
+              inputMode="decimal"
+              placeholder="0,00"
+              value={financeiro.aposVencimento ?? ""}
+              onChange={(e) => set({ aposVencimento: e.target.value })}
+            />
+          </Field>
+          <Field label="Camisa">
+            <Select value={financeiro.camisa} onValueChange={(v) => set({ camisa: v })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Tamanho" />
+              </SelectTrigger>
+              <SelectContent>
+                {CAMISAS.map((t) => (
+                  <SelectItem key={t} value={t}>
+                    {t}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+      )}
 
       <p className="text-xs text-muted-foreground">
         Esses valores entram no contrato. A multa de cancelamento (Cláusula 7ª) usa 3× a mensalidade.

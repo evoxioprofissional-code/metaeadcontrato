@@ -110,6 +110,8 @@ export async function submitEnrollment(input: SubmitInput): Promise<SubmitResult
       valor_mensalidade: toNumber(f.valorMensalidade),
       valor_recebido: toNumber(f.valorMatricula),
       recebedor: f.recebedor || null,
+      apos_vencimento: toNumber(f.aposVencimento),
+      camisa: f.camisa || null,
       responsavel_id: responsavelId ?? null,
     })
     .select("id, enrollment_code")

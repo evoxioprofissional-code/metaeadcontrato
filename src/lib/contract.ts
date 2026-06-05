@@ -30,6 +30,8 @@ export interface Financeiro {
   valorMensalidade?: string;
   duracao?: string;
   recebedor?: string;
+  aposVencimento?: string;
+  camisa?: string;
 }
 
 // Monta os valores dos tokens {{...}} a partir dos dados do aluno + dados do responsável.
@@ -59,6 +61,8 @@ export function buildContractData(v: EnrollmentForm, f: Financeiro = {}): Record
     valor_mensalidade: f.valorMensalidade ?? "",
     duracao: f.duracao ?? "",
     recebedor: f.recebedor ?? "",
+    apos_vencimento: f.aposVencimento ?? "",
+    camisa: f.camisa ?? "",
     data: hoje,
   };
 }
