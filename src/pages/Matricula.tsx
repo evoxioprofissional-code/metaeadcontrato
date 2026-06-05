@@ -1,4 +1,4 @@
-import { useMemo, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -13,7 +13,7 @@ import {
   Pencil,
 } from "lucide-react";
 import { FormProvider, useForm } from "react-hook-form";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { ContractStep } from "@/components/matricula/ContractStep";
@@ -37,6 +37,7 @@ import { clearAutosave, loadAutosave, useAutosave } from "@/hooks/useAutosave";
 import { buildContractData, mergeContract, type Financeiro } from "@/lib/contract";
 import { generateComprovante } from "@/lib/pdf";
 import { submitEnrollment, type SubmitResult } from "@/services/enrollment";
+import { getInvite, submitRemoteEnrollment, type InviteData } from "@/services/invites";
 import {
   defaultEnrollment,
   enrollmentSchema,
@@ -80,20 +81,62 @@ export default function Matricula() {
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<SubmitResult | null>(null);
 
+  const [searchParams] = useSearchParams();
+  const conviteToken = searchParams.get("convite") ?? undefined;
+  const [invite, setInvite] = useState<InviteData | null>(null);
+  const [inviteLoading, setInviteLoading] = useState(!!conviteToken);
+  const [inviteError, setInviteError] = useState(false);
+  const remote = !!invite;
+
   const values = methods.watch();
   useAutosave(STORAGE_KEY, values);
+
+  // Fluxo remoto: carrega o convite e pré-preenche curso/turno/unidade.
+  useEffect(() => {
+    if (!conviteToken) return;
+    let active = true;
+    getInvite(conviteToken)
+      .then((inv) => {
+        if (!active) return;
+        if (!inv) return setInviteError(true);
+        setInvite(inv);
+        if (inv.course_slug) methods.setValue("courseSlug", inv.course_slug);
+        if (inv.turno) methods.setValue("turno", inv.turno);
+        if (inv.unit_id) methods.setValue("unitId", inv.unit_id);
+      })
+      .catch(() => active && setInviteError(true))
+      .finally(() => active && setInviteLoading(false));
+    return () => {
+      active = false;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conviteToken]);
 
   const contractsQuery = useContractsList();
   const contracts = contractsQuery.data ?? [];
   const selectedContract =
     contracts.find((c) => c.id === selectedContractId) ?? (contracts.length === 1 ? contracts[0] : undefined);
 
+  const inviteFinanceiro: Financeiro = invite
+    ? {
+        valorMatricula: fmtMoney(invite.valor_matricula),
+        numMensalidades: invite.num_mensalidades?.toString() ?? "",
+        valorMensalidade: fmtMoney(invite.valor_mensalidade),
+        duracao: invite.duracao ?? "",
+        recebedor: invite.recebedor ?? "",
+        aposVencimento: fmtMoney(invite.apos_vencimento),
+        camisa: invite.camisa ?? "",
+      }
+    : financeiro;
+
+  const effContractHtml = remote ? invite!.contract_html : selectedContract?.content_html;
+  const effContractVersion = remote ? invite!.contract_version : selectedContract?.version;
+  const effFinanceiro = remote ? inviteFinanceiro : financeiro;
+
   const mergedHtml = useMemo(
     () =>
-      selectedContract
-        ? mergeContract(selectedContract.content_html, buildContractData(values, financeiro))
-        : undefined,
-    [selectedContract, values, financeiro],
+      effContractHtml ? mergeContract(effContractHtml, buildContractData(values, effFinanceiro)) : undefined,
+    [effContractHtml, values, effFinanceiro],
   );
 
   const docsCount = Object.keys(docs).length;
@@ -120,7 +163,7 @@ export default function Matricula() {
   }
 
   function back() {
-    if (phase === "contract") return setPhase("responsavel"), scrollTop();
+    if (phase === "contract") return setPhase(remote ? "review" : "responsavel"), scrollTop();
     if (phase === "responsavel") return setPhase("review"), scrollTop();
     if (phase === "review") return setPhase("form"), scrollTop();
     if (step === 0) return;
@@ -142,20 +185,26 @@ export default function Matricula() {
       toast.error("Marque que você leu e concorda com o contrato.");
       return;
     }
-    if (!selectedContract) {
+    if (!remote && !selectedContract) {
       toast.error("Selecione o contrato na etapa do responsável.");
       return;
     }
     setSubmitting(true);
     try {
-      const res = await submitEnrollment({
-        values,
-        docs,
-        signature,
-        financeiro,
-        contractVersionId: selectedContract.id,
-        responsavelId: user?.id,
-      });
+      let res: SubmitResult;
+      if (remote) {
+        const code = await submitRemoteEnrollment(invite!.token, values, docs, signature);
+        res = { enrollmentId: "", enrollmentCode: code, ip: null };
+      } else {
+        res = await submitEnrollment({
+          values,
+          docs,
+          signature,
+          financeiro,
+          contractVersionId: selectedContract!.id,
+          responsavelId: user?.id,
+        });
+      }
       setResult(res);
       clearAutosave(STORAGE_KEY);
       setPhase("success");
@@ -195,9 +244,31 @@ export default function Matricula() {
       signatureDataUrl: signature.dataUrl,
       studentName: values.fullName,
       courseName: labelOf(COURSES, values.courseSlug, "slug"),
-      version: selectedContract?.version ?? "",
+      version: effContractVersion ?? "",
       ip: result.ip,
     });
+  }
+
+  // ----- Convite remoto: carregando / inválido -----
+  if (conviteToken && inviteLoading) {
+    return (
+      <div className="flex min-h-dvh items-center justify-center bg-background">
+        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+  if (conviteToken && inviteError) {
+    return (
+      <div className="flex min-h-dvh flex-col items-center justify-center gap-4 bg-background px-6 text-center">
+        <h1 className="text-xl font-bold">Link inválido ou já utilizado</h1>
+        <p className="max-w-sm text-muted-foreground">
+          Peça um novo link de matrícula à secretaria do Grupo Educacional Meta.
+        </p>
+        <Button asChild variant="outline">
+          <Link to="/">Ir para o início</Link>
+        </Button>
+      </div>
+    );
   }
 
   // ----- Tela de sucesso (fim do fluxo) -----
@@ -373,9 +444,9 @@ export default function Matricula() {
                 transition={{ duration: 0.25 }}
               >
                 <ContractStep
-                  loading={contractsQuery.isLoading}
-                  error={contractsQuery.isError}
-                  version={selectedContract?.version}
+                  loading={remote ? false : contractsQuery.isLoading}
+                  error={remote ? false : contractsQuery.isError}
+                  version={effContractVersion}
                   html={mergedHtml}
                   docsCount={docsCount}
                   signature={signature}
@@ -417,7 +488,7 @@ export default function Matricula() {
               </Button>
             )}
             {phase === "review" && (
-              <Button variant="gradient" size="lg" className="flex-[2]" onClick={() => { setPhase("responsavel"); scrollTop(); }}>
+              <Button variant="gradient" size="lg" className="flex-[2]" onClick={() => { setPhase(remote ? "contract" : "responsavel"); scrollTop(); }}>
                 Avançar
                 <ArrowRight className="size-5" />
               </Button>
@@ -480,6 +551,10 @@ function formatDate(iso?: string) {
   if (!iso) return "";
   const [y, m, d] = iso.split("-");
   return d && m && y ? `${d}/${m}/${y}` : iso;
+}
+
+function fmtMoney(n?: number | null) {
+  return n == null ? "" : n.toFixed(2).replace(".", ",");
 }
 
 function Row({ label, value }: { label: string; value?: string }) {

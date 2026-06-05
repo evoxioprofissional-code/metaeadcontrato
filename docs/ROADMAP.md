@@ -13,7 +13,7 @@
 | **2** | Contrato + Assinatura digital | ✅ Concluída |
 | **3** | Autenticação (staff) + Etapa do Responsável (escolha do contrato + valores) | ✅ Concluída |
 | **4** | Finalização (salvar no Supabase + nº + IP + PDF) + Painel admin em `/admin` | ✅ Concluída (e-mail pendente) |
-| **5** | Fluxo remoto (dono cria + link p/ aluno) | ⬜ Planejada |
+| **5** | Fluxo remoto (dono cria + link p/ aluno) | ✅ Concluída |
 | **6** | Editor de contratos (multi-contrato + versionamento) | ⬜ Planejada |
 | **7** | E-mail (Edge Function) + Polimento & qualidade (Lighthouse, seed, testes) | ⬜ Planejada |
 
