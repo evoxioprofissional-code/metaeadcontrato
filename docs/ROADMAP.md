@@ -15,7 +15,7 @@
 | **4** | Finalização (salvar no Supabase + nº + IP + PDF) + Painel admin em `/admin` | ✅ Concluída (e-mail pendente) |
 | **5** | Fluxo remoto (dono cria + link p/ aluno) | ✅ Concluída |
 | **6** | Editor de contratos (multi-contrato + versionamento) | ✅ Concluída |
-| **7** | E-mail (Edge Function) + Polimento & qualidade (Lighthouse, seed, testes) | ⬜ Planejada |
+| **7** | Polimento & qualidade (code-splitting, testes, Storage) | ✅ Concluída · e-mail dispensado (WhatsApp + painel) |
 
 ## Detalhe das fases
 

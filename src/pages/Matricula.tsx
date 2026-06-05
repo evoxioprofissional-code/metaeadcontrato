@@ -236,9 +236,9 @@ export default function Matricula() {
     />,
   ];
 
-  function downloadComprovante() {
+  async function downloadComprovante() {
     if (!result || !signature || !mergedHtml) return;
-    generateComprovante({
+    await generateComprovante({
       enrollmentCode: result.enrollmentCode,
       contractHtml: mergedHtml,
       signatureDataUrl: signature.dataUrl,

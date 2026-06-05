@@ -168,7 +168,7 @@ function DetailPanel({ row, onClose }: { row: EnrollmentRow; onClose: () => void
         data: new Date(row.created_at).toLocaleDateString("pt-BR"),
       };
       const html = contract ? mergeContract(contract.content_html, tokens) : "";
-      generateComprovante({
+      await generateComprovante({
         enrollmentCode: row.enrollment_code,
         contractHtml: html,
         signatureDataUrl: sigDataUrl,

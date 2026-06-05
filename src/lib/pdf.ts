@@ -1,5 +1,3 @@
-import { jsPDF } from "jspdf";
-
 function htmlToText(html: string): string {
   return html
     .replace(/<\/(p|h1|h2|h3|h4|div|li)>/gi, "\n\n")
@@ -26,7 +24,9 @@ export interface ComprovanteData {
 }
 
 // Gera o PDF do comprovante de matrícula (contrato + assinatura + metadados).
-export function generateComprovante(d: ComprovanteData) {
+// jsPDF é importado sob demanda (code-splitting) para aliviar o bundle inicial.
+export async function generateComprovante(d: ComprovanteData) {
+  const { jsPDF } = await import("jspdf");
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
