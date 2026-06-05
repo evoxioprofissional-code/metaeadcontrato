@@ -21,6 +21,9 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
       "react-refresh/only-export-components": ["warn", { allowConstantExport: true }],
       "@typescript-eslint/no-unused-vars": "off",
+      // Acesso ao Supabase usa cast (tipos do banco são placeholder até gerar com
+      // o Supabase CLI). Mantido como aviso, não erro. Gerar tipos remove os casts.
+      "@typescript-eslint/no-explicit-any": "warn",
     },
   },
 );
