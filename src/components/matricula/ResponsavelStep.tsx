@@ -52,6 +52,7 @@ export function ResponsavelStep({
   const html = selected?.content_html ?? "";
   const needAposVenc = html.includes("{{apos_vencimento}}");
   const needCamisa = html.includes("{{camisa}}");
+  const needPosArea = html.includes("{{pos_area}}");
   const CAMISAS = ["PP", "P", "M", "G", "GG"];
 
   return (
@@ -88,6 +89,18 @@ export function ResponsavelStep({
           </SelectContent>
         </Select>
       </Field>
+
+      {needPosArea && (
+        <Field label="Área da pós-graduação" htmlFor="f_posarea">
+          <Input
+            id="f_posarea"
+            autoCapitalize="words"
+            placeholder="Ex.: Psicopedagogia"
+            value={financeiro.posArea ?? ""}
+            onChange={(e) => set({ posArea: e.target.value })}
+          />
+        </Field>
+      )}
 
       <div className="grid grid-cols-2 gap-4">
         <Field label="Taxa de matrícula (R$)" htmlFor="f_matricula">

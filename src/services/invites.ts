@@ -63,6 +63,7 @@ export async function createInvite(input: CreateInviteInput): Promise<{ token: s
       valor_mensalidade: toNumber(f.valorMensalidade),
       apos_vencimento: toNumber(f.aposVencimento),
       camisa: f.camisa || null,
+      pos_area: f.posArea || null,
       duracao: f.duracao || null,
       recebedor: f.recebedor || null,
     })
@@ -90,6 +91,7 @@ export interface InviteData {
   camisa: string | null;
   recebedor: string | null;
   duracao: string | null;
+  pos_area: string | null;
 }
 
 export async function getInvite(token: string): Promise<InviteData | null> {

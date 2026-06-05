@@ -126,6 +126,7 @@ export default function Matricula() {
         recebedor: invite.recebedor ?? "",
         aposVencimento: fmtMoney(invite.apos_vencimento),
         camisa: invite.camisa ?? "",
+        posArea: invite.pos_area ?? "",
       }
     : financeiro;
 
