@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { LayoutDashboard, Link2, ListChecks, Loader2, LogOut, ShieldCheck } from "lucide-react";
+import { FileText, LayoutDashboard, Link2, ListChecks, Loader2, LogOut, ShieldCheck } from "lucide-react";
 
+import { AdminContratos } from "@/components/admin/AdminContratos";
 import { AdminDashboard } from "@/components/admin/AdminDashboard";
 import { AdminMatriculas } from "@/components/admin/AdminMatriculas";
 import { AdminNovoLink } from "@/components/admin/AdminNovoLink";
@@ -9,12 +10,13 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/lib/utils";
 
-type Section = "dashboard" | "matriculas" | "novo-link";
+type Section = "dashboard" | "matriculas" | "novo-link" | "contratos";
 
 const NAV: { id: Section; label: string; icon: typeof LayoutDashboard }[] = [
   { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
   { id: "matriculas", label: "Matrículas", icon: ListChecks },
   { id: "novo-link", label: "Gerar link", icon: Link2 },
+  { id: "contratos", label: "Contratos", icon: FileText },
 ];
 
 export default function Admin() {
@@ -105,8 +107,10 @@ export default function Admin() {
             <AdminDashboard onOpen={() => setSection("matriculas")} />
           ) : section === "matriculas" ? (
             <AdminMatriculas />
-          ) : (
+          ) : section === "novo-link" ? (
             <AdminNovoLink />
+          ) : (
+            <AdminContratos />
           )}
         </main>
       </div>
