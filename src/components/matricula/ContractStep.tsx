@@ -14,6 +14,7 @@ interface ContractStepProps {
   onSignatureChange: (v: SignatureValue | null) => void;
   accepted: boolean;
   onAcceptedChange: (v: boolean) => void;
+  schoolSignatureDataUrl?: string | null;
 }
 
 function StatusItem({ done, label }: { done: boolean; label: string }) {
@@ -39,6 +40,7 @@ export function ContractStep({
   onSignatureChange,
   accepted,
   onAcceptedChange,
+  schoolSignatureDataUrl,
 }: ContractStepProps) {
   const signed = !!signature;
 
@@ -90,9 +92,23 @@ export function ContractStep({
         </div>
       </div>
 
-      {/* Assinatura */}
+      {/* Assinatura da escola (já assinada) */}
+      {schoolSignatureDataUrl && (
+        <div className="space-y-2">
+          <h2 className="font-semibold">Assinatura da escola (CONTRATADA)</h2>
+          <div className="flex items-center gap-3 rounded-xl border border-success/40 bg-white p-2">
+            <img src={schoolSignatureDataUrl} alt="Assinatura da escola" className="h-20 object-contain" />
+            <span className="flex items-center gap-1 text-sm font-medium text-success">
+              <CheckCircle2 className="size-4" />
+              Já assinado pela escola
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Assinatura do aluno */}
       <div className="space-y-3">
-        <h2 className="font-semibold">Sua assinatura</h2>
+        <h2 className="font-semibold">Sua assinatura (CONTRATANTE)</h2>
         <SignaturePad value={signature} onChange={onSignatureChange} />
       </div>
 

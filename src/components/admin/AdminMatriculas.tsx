@@ -180,6 +180,7 @@ function DetailPanel({ row, onClose }: { row: EnrollmentRow; onClose: () => void
         version: contract?.version ?? "",
         ip: row.signer_ip,
         dateISO: row.created_at,
+        schoolSignatureDataUrl: row.school_signature,
       });
     } catch (e: any) {
       toast.error("Erro ao gerar PDF: " + (e?.message ?? ""));

@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { Check, Copy, Link2, Loader2, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 
 import { Field } from "@/components/matricula/Field";
+import { SignaturePad, type SignatureValue } from "@/components/matricula/SignaturePad";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -26,9 +27,11 @@ export function AdminNovoLink() {
   const [unitId, setUnitId] = useState<string>();
   const [turno, setTurno] = useState<string>();
   const [f, setF] = useState<Financeiro>({});
+  const [schoolSig, setSchoolSig] = useState<SignatureValue | null>(null);
   const [busy, setBusy] = useState(false);
   const [link, setLink] = useState<string>();
   const [copied, setCopied] = useState(false);
+  const resultRef = useRef<HTMLDivElement>(null);
 
   const selected = contracts.find((c) => c.id === contractId);
   const html = selected?.content_html ?? "";
@@ -50,6 +53,10 @@ export function AdminNovoLink() {
       toast.error("Selecione o contrato.");
       return;
     }
+    if (!schoolSig) {
+      toast.error("Assine como escola (CONTRATADA) antes de gerar o link.");
+      return;
+    }
     setBusy(true);
     try {
       const { link } = await createInvite({
@@ -58,9 +65,11 @@ export function AdminNovoLink() {
         unitId,
         turno,
         financeiro: f,
+        schoolSignatureDataUrl: schoolSig.dataUrl,
       });
       setLink(link);
       toast.success("Link gerado!");
+      setTimeout(() => resultRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }), 120);
     } catch (e: any) {
       toast.error("Erro ao gerar link: " + (e?.message ?? ""));
     } finally {
@@ -202,14 +211,22 @@ export function AdminNovoLink() {
         </div>
       )}
 
+      <div className="space-y-2 rounded-xl border border-border/60 p-3">
+        <p className="text-sm font-semibold">Assinatura da escola (CONTRATADA)</p>
+        <p className="text-xs text-muted-foreground">
+          Você assina aqui como escola; o aluno assina depois, pelo link.
+        </p>
+        <SignaturePad value={schoolSig} onChange={setSchoolSig} />
+      </div>
+
       <Button variant="gradient" size="lg" className="w-full" onClick={generate} disabled={busy}>
         {busy ? <Loader2 className="size-5 animate-spin" /> : <Link2 className="size-5" />}
         Gerar link
       </Button>
 
       {link && (
-        <div className="meta-card space-y-3 p-4">
-          <p className="text-sm font-medium">Link gerado — envie ao aluno:</p>
+        <div ref={resultRef} className="meta-card space-y-3 border-2 border-success/50 p-4">
+          <p className="text-sm font-semibold text-success">✓ Link gerado — envie ao aluno:</p>
           <div className="flex items-center gap-2 rounded-lg border border-input bg-muted/40 p-2">
             <span className="min-w-0 flex-1 truncate text-sm">{link}</span>
             <Button size="sm" variant="outline" onClick={copy}>

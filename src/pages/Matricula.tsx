@@ -75,6 +75,7 @@ export default function Matricula() {
   const [docs, setDocs] = useState<DocFiles>({});
   const [docError, setDocError] = useState<string>();
   const [signature, setSignature] = useState<SignatureValue | null>(null);
+  const [schoolSignature, setSchoolSignature] = useState<SignatureValue | null>(null);
   const [accepted, setAccepted] = useState(false);
   const [selectedContractId, setSelectedContractId] = useState<string>();
   const [financeiro, setFinanceiro] = useState<Financeiro>({});
@@ -133,6 +134,7 @@ export default function Matricula() {
   const effContractHtml = remote ? invite!.contract_html : selectedContract?.content_html;
   const effContractVersion = remote ? invite!.contract_version : selectedContract?.version;
   const effFinanceiro = remote ? inviteFinanceiro : financeiro;
+  const effSchoolSig = remote ? invite!.school_signature ?? undefined : schoolSignature?.dataUrl;
 
   const mergedHtml = useMemo(
     () =>
@@ -204,6 +206,7 @@ export default function Matricula() {
           financeiro,
           contractVersionId: selectedContract!.id,
           responsavelId: user?.id,
+          schoolSignatureDataUrl: schoolSignature?.dataUrl,
         });
       }
       setResult(res);
@@ -247,6 +250,7 @@ export default function Matricula() {
       courseName: labelOf(COURSES, values.courseSlug, "slug"),
       version: effContractVersion ?? "",
       ip: result.ip,
+      schoolSignatureDataUrl: effSchoolSig,
     });
   }
 
@@ -434,6 +438,8 @@ export default function Matricula() {
                   onSelect={setSelectedContractId}
                   financeiro={financeiro}
                   onChange={setFinanceiro}
+                  schoolSignature={schoolSignature}
+                  onSchoolSignatureChange={setSchoolSignature}
                 />
               </motion.div>
             ) : phase === "contract" ? (
@@ -454,6 +460,7 @@ export default function Matricula() {
                   onSignatureChange={setSignature}
                   accepted={accepted}
                   onAcceptedChange={setAccepted}
+                  schoolSignatureDataUrl={effSchoolSig}
                 />
               </motion.div>
             ) : (
@@ -499,7 +506,7 @@ export default function Matricula() {
                 variant="gradient"
                 size="lg"
                 className="flex-[2]"
-                disabled={!isStaff || !selectedContract}
+                disabled={!isStaff || !selectedContract || !schoolSignature}
                 onClick={() => { setPhase("contract"); scrollTop(); }}
               >
                 Ir para a assinatura

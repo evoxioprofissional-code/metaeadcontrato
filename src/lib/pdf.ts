@@ -21,6 +21,7 @@ export interface ComprovanteData {
   version: string;
   ip?: string | null;
   dateISO?: string;
+  schoolSignatureDataUrl?: string | null;
 }
 
 // Gera o PDF do comprovante de matrícula (contrato + assinatura + metadados).
@@ -92,26 +93,38 @@ export async function generateComprovante(d: ComprovanteData) {
   }
   y += 6;
 
-  // Assinatura
-  ensure(40);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(10);
-  doc.text("Assinatura do(a) aluno(a):", M, y);
-  y += 4;
+  // Assinaturas (aluno à esquerda, escola à direita)
+  ensure(46);
+  const colW = 80;
+  const rightX = M + maxW - colW;
+  const sigTop = y;
+
   try {
-    doc.addImage(d.signatureDataUrl, "PNG", M, y, 70, 28);
+    if (d.signatureDataUrl) doc.addImage(d.signatureDataUrl, "PNG", M, sigTop, colW, 26);
   } catch {
     /* assinatura indisponível */
   }
-  y += 30;
+  try {
+    if (d.schoolSignatureDataUrl) doc.addImage(d.schoolSignatureDataUrl, "PNG", rightX, sigTop, colW, 26);
+  } catch {
+    /* assinatura indisponível */
+  }
+  y = sigTop + 28;
   doc.setDrawColor(120);
-  doc.line(M, y, M + 70, y);
+  doc.line(M, y, M + colW, y);
+  doc.line(rightX, y, rightX + colW, y);
   y += 5;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.setTextColor(20, 20, 20);
+  doc.text("CONTRATANTE (aluno/a)", M, y);
+  doc.text("CONTRATADA (Grupo Educacional Meta)", rightX, y);
+  y += 8;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(8);
   doc.setTextColor(120);
   doc.text(
-    "Documento gerado eletronicamente. A assinatura digital e o registro de IP comprovam o aceite.",
+    "Documento gerado eletronicamente. As assinaturas digitais e o registro de IP comprovam o aceite.",
     M,
     y,
   );

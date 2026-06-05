@@ -37,6 +37,7 @@ export interface SubmitInput {
   financeiro: Financeiro;
   contractVersionId: string;
   responsavelId?: string;
+  schoolSignatureDataUrl?: string;
 }
 
 export interface SubmitResult {
@@ -47,7 +48,7 @@ export interface SubmitResult {
 
 // Salva a matrícula completa no Supabase (usa a sessão autenticada do responsável).
 export async function submitEnrollment(input: SubmitInput): Promise<SubmitResult> {
-  const { values: v, docs, signature, financeiro: f, contractVersionId, responsavelId } = input;
+  const { values: v, docs, signature, financeiro: f, contractVersionId, responsavelId, schoolSignatureDataUrl } = input;
   const db = supabase as any;
   const ip = await fetchIp();
 
@@ -113,6 +114,7 @@ export async function submitEnrollment(input: SubmitInput): Promise<SubmitResult
       apos_vencimento: toNumber(f.aposVencimento),
       camisa: f.camisa || null,
       pos_area: f.posArea || null,
+      school_signature: schoolSignatureDataUrl ?? null,
       responsavel_id: responsavelId ?? null,
     })
     .select("id, enrollment_code")

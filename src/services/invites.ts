@@ -35,6 +35,7 @@ export interface CreateInviteInput {
   unitId?: string;
   turno?: string;
   financeiro: Financeiro;
+  schoolSignatureDataUrl?: string;
 }
 
 // Responsável cria um convite e recebe o link para enviar ao aluno.
@@ -66,6 +67,7 @@ export async function createInvite(input: CreateInviteInput): Promise<{ token: s
       pos_area: f.posArea || null,
       duracao: f.duracao || null,
       recebedor: f.recebedor || null,
+      school_signature: input.schoolSignatureDataUrl || null,
     })
     .select("token")
     .single();
@@ -92,6 +94,7 @@ export interface InviteData {
   recebedor: string | null;
   duracao: string | null;
   pos_area: string | null;
+  school_signature: string | null;
 }
 
 export async function getInvite(token: string): Promise<InviteData | null> {

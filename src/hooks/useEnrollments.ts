@@ -16,6 +16,7 @@ export interface EnrollmentRow {
   apos_vencimento: number | null;
   camisa: string | null;
   pos_area: string | null;
+  school_signature: string | null;
   contract_version_id: string | null;
   students: {
     full_name: string;
@@ -41,7 +42,7 @@ export interface EnrollmentRow {
 }
 
 const SELECT =
-  "id, enrollment_code, status, created_at, signer_ip, turno, valor_matricula, num_mensalidades, valor_mensalidade, recebedor, apos_vencimento, camisa, pos_area, contract_version_id, " +
+  "id, enrollment_code, status, created_at, signer_ip, turno, valor_matricula, num_mensalidades, valor_mensalidade, recebedor, apos_vencimento, camisa, pos_area, school_signature, contract_version_id, " +
   "students(full_name, cpf, email, phone, whatsapp, birth_date, naturalidade, father_name, mother_name, rg, estado_civil, street, number, neighborhood, city, state, cep), " +
   "courses(name), units(name)";
 

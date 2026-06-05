@@ -2,6 +2,7 @@ import { LogOut, ShieldCheck } from "lucide-react";
 
 import { StaffLogin } from "@/components/auth/StaffLogin";
 import { Field } from "@/components/matricula/Field";
+import { SignaturePad, type SignatureValue } from "@/components/matricula/SignaturePad";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -21,6 +22,8 @@ interface ResponsavelStepProps {
   onSelect: (id: string) => void;
   financeiro: Financeiro;
   onChange: (f: Financeiro) => void;
+  schoolSignature: SignatureValue | null;
+  onSchoolSignatureChange: (v: SignatureValue | null) => void;
 }
 
 export function ResponsavelStep({
@@ -30,6 +33,8 @@ export function ResponsavelStep({
   onSelect,
   financeiro,
   onChange,
+  schoolSignature,
+  onSchoolSignatureChange,
 }: ResponsavelStepProps) {
   const { isStaff, user, signOut } = useAuth();
 
@@ -184,6 +189,14 @@ export function ResponsavelStep({
           )}
         </div>
       )}
+
+      <div className="space-y-2 rounded-xl border border-border/60 p-3">
+        <p className="text-sm font-semibold">Assinatura da escola (CONTRATADA)</p>
+        <p className="text-xs text-muted-foreground">
+          Assine como escola; em seguida o aluno assina a parte dele.
+        </p>
+        <SignaturePad value={schoolSignature} onChange={onSchoolSignatureChange} />
+      </div>
 
       <p className="text-xs text-muted-foreground">
         Esses valores entram no contrato. A multa de cancelamento (Cláusula 7ª) usa 3× a mensalidade.
